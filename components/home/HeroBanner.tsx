@@ -39,7 +39,7 @@ export default function HeroBanner() {
   }, []);
 
   return (
-    <div className="relative h-[70vh] md:h-[85vh] mt-[104px] overflow-hidden bg-[#F9F3EF]">
+    <div className="relative h-[70vh] md:h-[85vh] mt-26 overflow-hidden bg-[#FDF0E9] ">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -59,10 +59,10 @@ export default function HeroBanner() {
               {slide.subtitle}
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href={slide.link} className="bg-[#F4845F] text-white px-8 py-3 rounded-full font-medium hover:bg-[#D95F35] transition-colors shadow-lg hover:shadow-xl">
+              <Link href={slide.link} className="bg-primary text-white px-8 py-3 rounded-full font-medium hover:bg-[#D95F35] transition-colors shadow-lg hover:shadow-xl">
                 Ver Coleção
               </Link>
-              <a href="https://wa.me/5583998660454" target="_blank" rel="noopener noreferrer" className="border-2 border-[#F4845F] text-[#F4845F] px-8 py-3 rounded-full font-medium hover:bg-[#F4845F] hover:text-white transition-colors">
+              <a href="https://wa.me/5583998660454" target="_blank" rel="noopener noreferrer" className="border-2 border-primary text-primary px-8 py-3 rounded-full font-medium hover:bg-primary hover:text-white transition-colors">
                 Fale Conosco
               </a>
             </div>
@@ -81,7 +81,7 @@ export default function HeroBanner() {
             key={index}
             className={cn(
               "w-2.5 h-2.5 rounded-full transition-all duration-300",
-              index === currentSlide ? "bg-[#F4845F] w-8" : "bg-[#F4845F]/30 hover:bg-[#F4845F]/50"
+              index === currentSlide ? "bg-primary w-8" : "bg-primary/30 hover:bg-primary/50"
             )}
             onClick={() => setCurrentSlide(index)}
             aria-label={`Go to slide ${index + 1}`}

@@ -28,8 +28,8 @@ export default function Depoimentos() {
 
         <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory hide-scrollbar">
           {depoimentos.map((dep, idx) => (
-            <div key={idx} className="flex-none w-[300px] md:w-[calc(33.333%-16px)] bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 snap-start flex flex-col">
-              <div className="flex gap-1 text-[#F4845F] mb-6">
+            <div key={idx} className="flex-none w-75 md:w-[calc(33.333%-16px)] bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 snap-start flex flex-col">
+              <div className="flex gap-1 text-primary mb-6">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={18} fill="currentColor" />
                 ))}

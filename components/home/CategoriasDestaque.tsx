@@ -24,7 +24,7 @@ export default function CategoriasDestaque() {
           <Link 
             key={cat.id} 
             href={cat.link}
-            className="group relative flex-none w-[280px] md:w-[calc(33.333%-16px)] aspect-[4/3] rounded-2xl overflow-hidden snap-start"
+            className="group relative flex-none w-280px md:w-[calc(33.333%-16px)] aspect-4/3 rounded-2xl overflow-hidden snap-start"
           >
             <img 
               src={cat.image} 
@@ -32,7 +32,7 @@ export default function CategoriasDestaque() {
               loading="lazy" 
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#3D261D]/80 via-[#3D261D]/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-[#3D261D]/80 via-[#3D261D]/20 to-transparent"></div>
             <div className="absolute inset-0 p-6 flex flex-col justify-end">
               <h3 className="font-display text-2xl text-white mb-2">{cat.title}</h3>
               <div className="flex items-center gap-2 text-white opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">

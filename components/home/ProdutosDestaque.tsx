@@ -37,14 +37,14 @@ export default function ProdutosDestaque() {
           <select 
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-200 bg-white text-[#5C3D31] text-sm focus:outline-none focus:border-[#F4845F] focus:ring-1 focus:ring-[#F4845F] flex-1 md:flex-none cursor-pointer"
+            className="px-4 py-2 rounded-full border border-gray-200 bg-white text-[#5C3D31] text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary flex-1 md:flex-none cursor-pointer"
           >
             {categorias.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <select 
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-200 bg-white text-[#5C3D31] text-sm focus:outline-none focus:border-[#F4845F] focus:ring-1 focus:ring-[#F4845F] flex-1 md:flex-none cursor-pointer"
+            className="px-4 py-2 rounded-full border border-gray-200 bg-white text-[#5C3D31] text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary flex-1 md:flex-none cursor-pointer"
           >
             <option value="Recentes">Mais Recentes</option>
             <option value="Menor Preço">Menor Preço</option>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-b from-[#3D261D] to-[#5C3D31] text-white py-12 px-4 md:px-8 mt-auto">
+    <footer className="bg-linear-to-b from-[#3D261D] to-[#5C3D31] text-white py-12 px-4 md:px-8 mt-auto">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1 md:col-span-2">
           <Link href="/" className="font-logo text-[#FAC9A8] text-3xl mb-4 block">
@@ -31,7 +31,6 @@ export default function Footer() {
           <ul className="space-y-2 text-[#A67C6D]">
             <li>WhatsApp: (83) 99866-0454</li>
             <li>Instagram: @fiosefitas.artesanato</li>
-            <li className="pt-4"><Link href="/admin" className="text-sm opacity-50 hover:opacity-100 transition-opacity">Área do Administrador</Link></li>
           </ul>
         </div>
       </div>

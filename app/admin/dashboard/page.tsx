@@ -330,14 +330,14 @@ export default function AdminDashboard() {
 
             <div className="space-y-4">
               {[
-                { label: 'Nome', key: 'nome', type: 'text' },
-                { label: 'Preco (R$)', key: 'preco', type: 'number' },
-              ].map(({ label, key, type }) => (
+                  { label: 'Nome', key: 'nome' as keyof Produto, type: 'text' },
+                  { label: 'Preco (R$)', key: 'preco' as keyof Produto, type: 'number' },
+                ].map(({ label, key, type }) => (
                 <div key={key}>
                   <label className="block text-sm font-semibold text-[#3D261D] mb-1.5">{label}</label>
                   <input
                     type={type}
-                    value={String((editProduto as Record<string, unknown>)[key])}
+                    value={String(editProduto[key])}
                     onChange={(e) => setEditProduto({ ...editProduto, [key]: type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value })}
                     className="w-full px-4 py-2.5 border border-[#E4D0C5] rounded-xl text-[#3D261D] focus:outline-none focus:border-[#F4845F] text-sm"
                   />
