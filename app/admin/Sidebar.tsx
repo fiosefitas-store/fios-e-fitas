@@ -23,7 +23,7 @@ export default function Sidebar({
 }: Props) {
   const sidebar = [
     {
-      key: "dashboard",
+      key: "home",
       icon: LayoutDashboard,
       label: "Home",
     },

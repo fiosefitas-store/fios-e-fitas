@@ -10,8 +10,9 @@ import SpecialTab from "./SpecialTab";
 
 import produtosBase from "@/data/produtos.json";
 import HomeTab from "./HomeTab";
+import FavoriteTab from "./FavoriteTab";
 
-export type Tab = "dashboard" | "produtos" | "sazonais" | "destaques";
+export type Tab = "home" | "produtos" | "sazonais" | "destaques";
 
 export interface Produto {
   id: string;
@@ -95,15 +96,15 @@ export default function AdminDashboardPage() {
         onLogout={handleLogout}
       />
 
-      {activeTab === "dashboard" && (
-        <HomeTab
-          produtos={produtos}
-          sazonais={sazonais}
-        />
-      )}
-
       <Dashboard activeTab={activeTab}>
-        {activeTab === "dashboard" && <div>Dashboard Content</div>}
+
+       {activeTab === "home" && (
+          <HomeTab
+            produtos={produtos}
+            sazonais={sazonais}
+            setActiveTab={setActiveTab}
+          />
+        )}
 
         {activeTab === "produtos" && (
           <ProductTab
@@ -112,13 +113,18 @@ export default function AdminDashboardPage() {
           />
         )}
 
-        {(activeTab === "sazonais" || activeTab === "destaques") && (
+        {activeTab === "sazonais" && (
           <SpecialTab
-            activeTab={activeTab}
+            produtos={produtos}
+            sazonais={sazonais}
+            saveProdutos={saveProdutos}
+            saveSazonais={saveSazonais}
+          />
+        )}
+        {activeTab === "destaques" && (
+          <FavoriteTab
             produtos={produtos}
             saveProdutos={saveProdutos}
-            sazonais={sazonais}
-            saveSazonais={saveSazonais}
           />
         )}
       </Dashboard>

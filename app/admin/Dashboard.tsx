@@ -13,20 +13,8 @@ export default function Dashboard({
   children,
 }: Props) {
   return (
-    <main className="flex-1 bg-bg overflow-auto">
-      <div className="bg-white border-b border-[#F2E8E1] px-8 py-5">
-        <h2 className="text-2xl font-bold text-[#3D261D]">
-          {activeTab === "produtos"
-            ? "Produtos"
-            : activeTab === "sazonais"
-            ? "Sazonais"
-            : "Destaques"}
-        </h2>
-      </div>
-
-      <div className="p-8">
-        {children}
-      </div>
+    <main className="flex-1 overflow-y-auto bg-bg p-8">
+      {children}
     </main>
   );
 }
