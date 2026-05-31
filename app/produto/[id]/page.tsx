@@ -87,7 +87,7 @@ export default function ProdutoPage() {
             setMainImage={setMainImage}
           />
 
-          <ProductData produto={produto} />
+          <ProductData produto={produto} setMainImage={setMainImage} />
         </div>
       </div>
     </div>

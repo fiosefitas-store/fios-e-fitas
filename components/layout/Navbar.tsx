@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Search, Heart, ShoppingBag, Menu, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { cn } from '@/lib/utils';
+import { CATEGORIES } from '@/data/categories';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const { state, dispatch } = useCart();
@@ -21,13 +23,10 @@ export default function Navbar() {
 
   const totalItems = state.items.reduce((acc, item) => acc + item.quantidade, 0);
 
-  const navLinks = [
-    { label: 'Laços', href: '/categoria/lacos' },
-    { label: 'Bolsas', href: '/categoria/bolsas' },
-    { label: 'Linha Bebê', href: '/categoria/linha-bebe' },
-    { label: 'Amigurumi', href: '/categoria/amigurumi' },
-    { label: 'Kits Presente', href: '/categoria/kits-presente' },
-  ];
+  const router = useRouter();
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+
+  const navLinks = CATEGORIES.map((c) => ({ label: c.label, href: `/categoria/${c.slug}`, slug: c.slug, subcategories: c.subcategories }));
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex flex-col">
@@ -53,9 +52,21 @@ export default function Navbar() {
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="text-[#5C3D31] hover:text-[#F4845F] transition-colors font-medium">
+            <button
+              key={link.href}
+              onClick={(e) => {
+                  if (openCategory !== link.slug) {
+                    e.preventDefault();
+                    setOpenCategory(link.slug);
+                  } else {
+                    setOpenCategory(null);
+                    router.push(link.href);
+                  }
+                }}
+              className="text-[#5C3D31] hover:text-[#F4845F] transition-colors font-medium"
+            >
               {link.label}
-            </Link>
+            </button>
           ))}
         </div>
 
@@ -64,9 +75,6 @@ export default function Navbar() {
           <button className="p-2 hover:text-[#F4845F] transition-colors hidden md:block">
             <Search size={20} />
           </button>
-          <Link href="/favoritos" className="p-2 hover:text-[#F4845F] transition-colors hidden md:block">
-            <Heart size={20} />
-          </Link>
           <button 
             className="p-2 hover:text-[#F4845F] transition-colors relative"
             onClick={() => dispatch({ type: 'TOGGLE_CART' })}
@@ -98,9 +106,42 @@ export default function Navbar() {
             <button className="flex items-center gap-2 text-[#5C3D31]">
               <Search size={20} /> Buscar
             </button>
-            <Link href="/favoritos" className="flex items-center gap-2 text-[#5C3D31]" onClick={() => setIsMobileMenuOpen(false)}>
-              <Heart size={20} /> Favoritos
-            </Link>
+          </div>
+        </div>
+      )}
+      {/* Submenu for desktop */}
+      {openCategory && (
+        <div className="hidden md:block bg-white border-t border-b shadow-sm">
+          <div className="max-w-6xl mx-auto px-6 py-6">
+            <div className="grid grid-cols-12 gap-6 items-start">
+              <div className="col-span-4">
+                <h3 className="text-[#F4845F] font-semibold text-lg mb-4">
+                  {navLinks.find((n) => n.slug === openCategory)?.label}
+                </h3>
+
+                <ul className="space-y-4">
+                  {navLinks.find((n) => n.slug === openCategory)?.subcategories.map((s: string) => (
+                    <li key={s}>
+                      <Link
+                        href={`/categoria/${openCategory}/${encodeURIComponent(s.toLowerCase().replace(/\s+/g, '-'))}`}
+                        onClick={() => setOpenCategory(null)}
+                        className="text-[#3D261D] text-lg font-medium hover:text-[#F4845F] transition-colors"
+                      >
+                        {s}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="col-span-8">
+                {/* espaço visual — aqui pode entrar imagem, banners ou categorias em destaque */}
+              </div>
+
+              <div className="col-span-12 flex justify-end mt-4">
+                <button onClick={() => setOpenCategory(null)} className="text-sm text-[#A67C6D]">Fechar</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

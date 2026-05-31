@@ -1,0 +1,70 @@
+'use client';
+
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+
+const categorias = [
+  {
+    id: 'festas',
+    title: 'Festa Junina',
+    image: '/images/produtos/laco-junino.png',
+    link: '/categoria/lacos',
+  },
+  {
+    id: 'eventos',
+    title: 'Eventos Especiais',
+    image: '/images/produtos/kit-presente.png',
+    link: '/categoria/kits-presente',
+  },
+  {
+    id: 'recem-nascido',
+    title: 'Recém-Nascido',
+    image: '/images/produtos/kit-bebe-rosa.png',
+    link: '/categoria/linha-bebe',
+  },
+];
+
+export default function CategoriasDestaque() {
+  return (
+    <section className="py-20">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 mb-12">
+        <h2 className="font-display text-3xl md:text-4xl text-[#3D261D] mb-4 uppercase">
+          Coleções Especiais
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {categorias.map((cat) => (
+          <Link
+            key={cat.id}
+            href={cat.link}
+            className="relative aspect-square group overflow-hidden"
+          >
+            <img
+              src={cat.image}
+              alt={cat.title}
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+
+            <div className="absolute inset-0 bg-[#3D261D]/50 group-hover:bg-[#3D261D]/70 transition-colors duration-300" />
+
+            <div className="absolute inset-0 flex flex-col justify-end items-center text-center uppercase tracking-wider p-6">
+              <h3 className="font-medium text-3xl text-white mb-4">
+                {cat.title}
+              </h3>
+
+              <div className="flex items-center gap-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="font-medium text-sm uppercase tracking-wider">
+                  Ver Produtos
+                </span>
+
+                <ArrowRight size={16} />
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}

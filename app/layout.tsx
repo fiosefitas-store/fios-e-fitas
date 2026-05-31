@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from './providers';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import WhatsAppFab from '@/components/layout/WhatsAppFab';
-import CartSidebar from '@/components/cart/CartSidebar';
+import ConditionalShell from '@/components/layout/ConditionalShell';
 
 export const metadata: Metadata = {
   title: 'Fios e Fitas — Artesanato Personalizado',
@@ -23,11 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR">
       <body>
         <Providers>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppFab />
-          <CartSidebar />
+          <ConditionalShell>{children}</ConditionalShell>
         </Providers>
       </body>
     </html>

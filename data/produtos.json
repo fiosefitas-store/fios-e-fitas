@@ -76,11 +76,11 @@
     "vendas": 203
   },
   {
-    "id": "amiguru-urso-p005",
+    "id": "amigurumi-urso-p005",
     "nome": "Amigurumi Urso Teddy",
     "descricao": "Ursinho amigurumi confeccionado à mão em crochê com linha anti-alérgica. Uma peça de colecionador com acabamento profissional.",
     "preco": 65.00,
-    "categoria": "Amiguru",
+    "categoria": "Amigurumi",
     "categoriasSazonais": [],
     "imagem": "/images/produtos/amiguru-urso.png",
     "imagens": ["/images/produtos/amiguru-urso.png"],
@@ -171,11 +171,11 @@
     "vendas": 76
   },
   {
-    "id": "amiguru-coelho-p010",
+    "id": "amigurumi-coelho-p010",
     "nome": "Amigurumi Coelhinha Encantada",
     "descricao": "Coelhinha amigurumi em crochê com laço decorativo e acabamento premium. Uma bonequinha artesanal que encanta crianças e adultos.",
     "preco": 58.00,
-    "categoria": "Amiguru",
+    "categoria": "Amigurumi",
     "categoriasSazonais": [],
     "imagem": "/images/produtos/amiguru-coelho.png",
     "imagens": ["/images/produtos/amiguru-coelho.png"],

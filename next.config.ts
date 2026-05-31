@@ -11,9 +11,6 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   allowedDevOrigins: [
-    "*.replit.dev",
-    "*.picard.replit.dev",
-    "*.kirk.replit.dev",
   ],
 };
 

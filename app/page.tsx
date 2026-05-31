@@ -1,7 +1,7 @@
 'use client';
 
 import HeroBanner from '@/components/home/HeroBanner';
-import CategoriasDestaque from '@/components/home/CategoriasDestaque';
+import CategoriasDestaque from '@/components/home/BannerSazonais';
 import ProdutosDestaque from '@/components/home/ProdutosDestaque';
 import Depoimentos from '@/components/home/Depoimentos';
 import InstagramSection from '@/components/home/InstagramSection';

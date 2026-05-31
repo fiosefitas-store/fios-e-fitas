@@ -10,12 +10,15 @@ import {
 } from 'lucide-react';
 
 import { useCart } from '@/hooks/useCart';
+import { CATEGORIES } from '@/data/categories';
+import { COR_MAP } from '@/lib/colors';
 
 type Props = {
   produto: any;
+  setMainImage?: (img: string) => void;
 };
 
-export default function ProductData({ produto }: Props) {
+export default function ProductData({ produto, setMainImage }: Props) {
   const { dispatch } = useCart();
 
   const [selectedCor, setSelectedCor] = useState('');
@@ -39,22 +42,13 @@ export default function ProductData({ produto }: Props) {
     }
   }, [produto]);
 
-  const toggleFavorite = () => {
-    const favs = JSON.parse(
-      localStorage.getItem('fiosefitas_favorites') || '[]'
-    );
-
-    const next = isFavorite
-      ? favs.filter((i: string) => i !== produto.id)
-      : [...favs, produto.id];
-
-    localStorage.setItem(
-      'fiosefitas_favorites',
-      JSON.stringify(next)
-    );
-
-    setIsFavorite(!isFavorite);
-  };
+  // When selected color changes, update main image if a per-color image exists
+  useEffect(() => {
+    if (!produto || !setMainImage) return;
+    const corImagens = produto.corImagens || {};
+    const img = corImagens[selectedCor] || produto.imagem;
+    setMainImage(img);
+  }, [selectedCor, produto, setMainImage]);
 
   const handleAddToCart = () => {
     dispatch({
@@ -68,7 +62,7 @@ export default function ProductData({ produto }: Props) {
         tamanho: selectedTamanho,
         material: selectedMaterial,
         personalizacao,
-        imagem: produto.imagem,
+        imagem: (produto.corImagens && produto.corImagens[selectedCor]) || produto.imagem,
       },
     });
 
@@ -76,41 +70,34 @@ export default function ProductData({ produto }: Props) {
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const corMap: Record<string, string> = {
-    Rosa: '#F2A7BB',
-    'Rosa Bebê': '#FBCFE8',
-    Branco: '#F9FAFB',
-    Lilás: '#C4B5FD',
-    Laranja: '#F4845F',
-    Coral: '#FB923C',
-    Amarelo: '#FCD34D',
-    Vermelho: '#EF4444',
-    Bege: '#D5B99B',
-    Natural: '#C9A898',
-    'Azul Bebê': '#BAE6FD',
-    'Azul Claro': '#93C5FD',
-    Cinza: '#D1D5DB',
-    Bordô: '#9F1239',
-    Vinho: '#7F1D1D',
-    'Verde Escuro': '#14532D',
-    'Azul Marinho': '#1E3A5F',
-    'Verde Menta': '#6EE7B7',
-    Caramelo: '#B45309',
-  };
+  const corMap = COR_MAP;
+
+  const tamanhosCm = produto.tamanhosCm || {};
+  const tamanhosStr = produto.tamanhos && produto.tamanhos.length > 0
+    ? produto.tamanhos.map((t: string) => (
+        tamanhosCm[t] ? `${t} (${tamanhosCm[t]} cm)` : t
+      )).join(', ')
+    : '';
 
   const descriptions = [
     'Produzido artesanalmente com materiais selecionados',
     `Disponível nas cores: ${produto.cores.join(', ')}`,
-    `Tamanhos: ${produto.tamanhos.join(', ')}`,
+    tamanhosStr ? `Tamanhos: ${tamanhosStr}` : `Tamanhos: ${produto.tamanhos.join(', ')}`,
     '100% personalizável conforme sua preferência',
   ];
 
+  const lowerCat = (produto?.categoria || '').toLowerCase();
+  const matched = CATEGORIES.find((c) =>
+    lowerCat.includes(c.label.toLowerCase())
+  );
+
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* TOPO */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#A67C6D] mb-2 block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#A67C6D] mb-3 block">
               {produto.categoria}
             </span>
 
@@ -121,166 +108,138 @@ export default function ProductData({ produto }: Props) {
               {produto.nome}
             </h1>
           </div>
-
-          <button
-            onClick={toggleFavorite}
-            className="flex-shrink-0 w-10 h-10 rounded-full border border-[#E4D0C5] flex items-center justify-center text-[#F4845F] hover:bg-[#F9F3EF] transition-colors"
-            aria-label="Favoritar"
-          >
-            <Heart
-              size={18}
-              className={isFavorite ? 'fill-[#F4845F]' : ''}
-            />
-          </button>
         </div>
 
-        {/* Stars antes do preço */}
-        <div className="flex items-center gap-2">
-          <div className="flex">
-            {[...Array(5)].map((_, i) => (
-              <span key={i} className="text-[#F4845F] text-lg">
-                ★
-              </span>
-            ))}
+        {/* PREÇO + ESTRELAS */}
+        <div className="flex items-center justify-between flex-wrap gap-5">
+          {/* Preço */}
+          <div className="inline-block text-[#F4845F] py-3 rounded-md font-semibold text-xl">
+            A partir de R$ {produto.preco.toFixed(2)}
           </div>
 
-          <span className="text-sm text-[#A67C6D]">
-            ({produto.vendas} vendas)
-          </span>
+          {/* Avaliação */}
+          <div className="flex items-center gap-3">
+            <div className="flex">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className="text-[#F4845F] text-xl">
+                  ★
+                </span>
+              ))}
+            </div>
+
+            <span className="text-sm text-[#A67C6D]">
+              ({produto.vendas} vendas)
+            </span>
+          </div>
         </div>
 
-        <p className="text-2xl font-bold text-[#F4845F]">
-          A partir de R$ {produto.preco.toFixed(2)}
-        </p>
+        {/* COR + TAMANHO */}
+        <div className="flex flex-col lg:flex-row gap-14">
+          {/* CORES */}
+          {produto.cores.length > 0 && (
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-[#3D261D] mb-4">
+                Cor:{' '}
+                <span className="font-normal text-[#7D5547]">
+                  {selectedCor}
+                </span>
+              </label>
 
-        {/* Color Selector */}
-        {produto.cores.length > 0 && (
-          <div>
-            <label className="block text-sm font-semibold text-[#3D261D] mb-3">
-              Cor:{' '}
-              <span className="font-normal text-[#7D5547]">
-                {selectedCor}
-              </span>
-            </label>
-
-            <div className="flex flex-wrap gap-2">
-              {produto.cores.map((cor: string) => (
-                <button
-                  key={cor}
-                  onClick={() => setSelectedCor(cor)}
-                  className={`w-9 h-9 rounded-full border-2 transition-all ${
-                    selectedCor === cor
-                      ? 'border-[#F4845F] scale-110 shadow-md'
-                      : 'border-[#E4D0C5] hover:border-[#F4845F]'
-                  }`}
-                  style={{
-                    backgroundColor: corMap[cor] || '#E4D0C5',
-                  }}
-                />
-              ))}
+              <div className="flex flex-wrap gap-3">
+                {produto.cores.map((cor: string) => (
+                  <button
+                    key={cor}
+                    onClick={() => setSelectedCor(cor)}
+                    className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
+                      selectedCor === cor
+                        ? 'border-[#F4845F] scale-110 shadow-md ring-2 ring-[#F4845F]/20'
+                        : 'border-[#E4D0C5] hover:border-[#F4845F]'
+                    }`}
+                    style={{
+                      backgroundColor:
+                        corMap[cor] || '#E4D0C5',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Size Selector */}
-        {produto.tamanhos.length > 0 && (
-          <div>
-            <label className="block text-sm font-semibold text-[#3D261D] mb-3">
-              Tamanho
-            </label>
+          {/* TAMANHOS */}
+          {produto.tamanhos.length > 0 && (
+            <div className="w-full lg:w-auto">
+              <label className="block text-sm font-semibold text-[#3D261D] mb-4">
+                Tamanho
+              </label>
 
-            <div className="flex flex-wrap gap-2">
-              {produto.tamanhos.map((tam: string) => (
-                <button
-                  key={tam}
-                  onClick={() => setSelectedTamanho(tam)}
-                  className={`px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
-                    selectedTamanho === tam
-                      ? 'bg-[#F4845F] text-white border-[#F4845F]'
-                      : 'border-[#E4D0C5] text-[#5C3D31] hover:border-[#F4845F] hover:text-[#F4845F]'
-                  }`}
-                >
-                  {tam}
-                </button>
-              ))}
+              <div className="flex items-center gap-3">
+                {produto.tamanhos.map((tam: string) => (
+                  <button
+                    key={tam}
+                    onClick={() => setSelectedTamanho(tam)}
+                    className={`w-11 h-9 flex items-center justify-center rounded-full border font-semibold transition-all ${
+                      selectedTamanho === tam
+                        ? 'bg-[#F4845F] text-white border-[#F4845F]'
+                        : 'border-[#E4D0C5] text-[#5C3D31] hover:border-[#F4845F] hover:text-[#F4845F]'
+                    }`}
+                  >
+                    {tam}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Material Selector */}
-        {produto.materiais.length > 0 && (
-          <div>
-            <label className="block text-sm font-semibold text-[#3D261D] mb-2">
-              Material
-            </label>
 
-            <select
-              value={selectedMaterial}
-              onChange={(e) => setSelectedMaterial(e.target.value)}
-              className="w-full px-4 py-3 border border-[#E4D0C5] rounded-xl text-[#3D261D] bg-white focus:outline-none focus:border-[#F4845F] focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)] text-sm"
-            >
-              {produto.materiais.map((mat: string) => (
-                <option key={mat} value={mat}>
-                  {mat}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Personalização maior */}
+        {/* PERSONALIZAÇÃO */}
         <div>
           <textarea
             placeholder="Digite sua personalização (nome, frase, cor especial, medidas...)"
             value={personalizacao}
-            onChange={(e) => setPersonalizacao(e.target.value)}
-            rows={6}
-            className="w-full px-4 py-4 border border-[#E4D0C5] rounded-xl text-[#3D261D] placeholder-[#C9A898] bg-white focus:outline-none focus:border-[#F4845F] focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)] text-sm resize-none"
+            onChange={(e) => {
+              setPersonalizacao(e.target.value);
+
+              e.target.style.height = 'auto';
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            rows={1}
+            className="w-full min-h-14 px-5 py-4 border border-[#F2E6E2] rounded-2xl text-[#3D261D] placeholder-[#C9A898] bg-white focus:outline-none focus:border-[#F4845F] focus:shadow-[0_0_0_3px_rgba(244,132,95,0.08)] text-sm resize-none overflow-hidden"
           />
         </div>
 
-        {/* Add to Cart */}
+        {/* BOTÃO */}
         <button
           onClick={handleAddToCart}
-          className="w-full py-4 rounded-full font-bold text-white text-base transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+          className="w-full py-5 rounded-full font-bold text-white text-lg transition-transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3"
           style={{
             background: added ? '#6DBF8A' : '#F4845F',
-            boxShadow: 'var(--shadow-primary)',
+            boxShadow:
+              '0 10px 30px rgba(244,132,95,0.18)',
           }}
         >
           {added ? (
             <>
-              <Check size={20} />
+              <Check size={22} />
               Adicionado ao carrinho!
             </>
           ) : (
             <>
-              <ShoppingBag size={20} />
+              <ShoppingBag size={22} />
               Adicionar ao Carrinho
             </>
           )}
         </button>
       </div>
 
-      {/* Description */}
-      <div className="mt-14 border-t border-[#E4D0C5] pt-8">
-        <h2 className="text-2xl font-bold text-[#3D261D] mb-6">
+      {/* DESCRIÇÃO */}
+      <div className=" border-[#E4D0C5] ">
+        <h2 className="text-2xl font-bold text-[#3D261D] mb-7">
           Descrição
         </h2>
 
-        <div className="space-y-3 max-w-4xl">
-          {descriptions.map((desc, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <Check
-                size={16}
-                className="text-[#F4845F] flex-shrink-0 mt-0.5"
-              />
-
-              <span className="text-sm text-[#5C3D31] leading-relaxed">
-                {desc}
-              </span>
-            </div>
-          ))}
+        <div className="space-y-4 max-w-4xl flex items-start gap-3 pb-10">
+          <p className="text-sm text-[#5C3D31]">{produto.descricao}</p>
         </div>
       </div>
     </>

@@ -39,7 +39,7 @@ export default function HeroBanner() {
   }, []);
 
   return (
-    <div className="relative h-[70vh] md:h-[85vh] mt-26 overflow-hidden bg-[#FDF0E9] ">
+    <div className="relative h-[70vh] md:h-[85vh] mt-15 overflow-hidden bg-[#FDF0E9] ">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -88,6 +88,55 @@ export default function HeroBanner() {
           />
         ))}
       </div>
+      {/* Barra de Benefícios */}
+      <div className="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t border-[#EAD7CF] z-40">
+        <div className="grid grid-cols-1 md:grid-cols-3">
+          
+          <div className="flex items-center justify-center gap-3 py-4 px-6 border-b md:border-b-0 md:border-r border-[#EAD7CF]">
+            <div className="w-10 h-10 rounded-full bg-[#3D261D] flex items-center justify-center text-white">
+              🚚
+            </div>
+            <div>
+              <p className="text-[#E91E63] font-semibold leading-none">
+                Frete grátis
+              </p>
+              <span className="text-sm text-[#5C3D31]">
+                Acima de R$169
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-3 py-4 px-6 border-b md:border-b-0 md:border-r border-[#EAD7CF]">
+            <div className="w-10 h-10 rounded-full bg-[#3D261D] flex items-center justify-center text-white">
+              🎁
+            </div>
+            <div>
+              <p className="text-[#E91E63] font-semibold leading-none">
+                10% OFF
+              </p>
+              <span className="text-sm text-[#5C3D31]">
+                PRIMEIRACOMPRA
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-3 py-4 px-6">
+            <div className="w-10 h-10 rounded-full bg-[#3D261D] flex items-center justify-center text-white">
+              💳
+            </div>
+            <div>
+              <p className="text-[#E91E63] font-semibold leading-none">
+                Parcelamento
+              </p>
+              <span className="text-sm text-[#5C3D31]">
+                Em até 4x sem juros
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   );
 }

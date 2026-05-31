@@ -6,7 +6,7 @@ const images = [
   '/images/produtos/laco-cetim-rosa.png',
   '/images/produtos/bolsa-croche-natural.png',
   '/images/produtos/kit-bebe-rosa.png',
-  '/images/produtos/amiguru-urso.png',
+  '/images/produtos/amigurumi-insta.webp',
 ];
 
 export default function InstagramSection() {
@@ -17,12 +17,12 @@ export default function InstagramSection() {
           Nos acompanhe no Instagram
         </h2>
         <a 
-          href="https://instagram.com/fiosefitas.artesanato" 
+          href="https://www.instagram.com/fiosefitas.boutique/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-primary font-medium hover:text-primary transition-colors flex items-center justify-center gap-2"
         >
-          @fiosefitas.artesanato
+          @fiosefitas.boutique
         </a>
       </div>
 
@@ -30,7 +30,7 @@ export default function InstagramSection() {
         {images.map((src, idx) => (
           <a 
             key={idx}
-            href="https://instagram.com/fiosefitas.artesanato"
+            href="https://www.instagram.com/fiosefitas.boutique/"
             target="_blank"
             rel="noopener noreferrer"
             className="relative aspect-square group overflow-hidden bg-bg-section"

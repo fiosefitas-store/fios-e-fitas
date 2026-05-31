@@ -48,7 +48,7 @@ export default function CategoriaPage() {
   return (
     <div className="min-h-screen pt-[104px]">
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-[#FDF6F0] to-[#F9EDE5] py-12 px-4">
+      <div className="bg-linear-to-br from-[#FDF6F0] to-[#F9EDE5] py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <nav className="flex items-center gap-2 text-sm text-[#A67C6D] mb-4">
             <Link href="/" className="hover:text-[#F4845F] transition-colors">Home</Link>

@@ -13,7 +13,7 @@ export default function ProductGallery({
 }: Props) {
   return (
     <div className="space-y-4">
-      <div className="aspect-square rounded-2xl overflow-hidden bg-[#F9F3EF]">
+      <div className="aspect-square rounded-2xl overflow-hidden bg-section">
         <img
           src={mainImage || produto.imagem}
           alt={produto.nome}
@@ -30,7 +30,7 @@ export default function ProductGallery({
               onClick={() => setMainImage(img)}
               className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors ${
                 mainImage === img
-                  ? 'border-[#F4845F]'
+                  ? 'border-primary'
                   : 'border-transparent'
               }`}
             >
