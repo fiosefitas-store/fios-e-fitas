@@ -1,6 +1,6 @@
 "use client";
 
-import { Produto, Colecao, Tab } from "./page";
+import { Produto, Colecao, Tab } from "../../app/admin/dashboard/page";
 import {
   Package,
   Tag,

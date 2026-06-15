@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id             String   @id
+  nome           String
+  descricao      String?
+  preco          Float
+  categoria      String
+  subcategoria   String?
+  imagem         String
+  imagens        Json?
+  cores          Json?
+  corImagens     Json?
+  tamanhos       Json?
+  tamanhosCm     Json?
+  materiais      Json?
+  destaque       Boolean  @default(false)
+  ativo          Boolean  @default(true)
+  personalizado  Boolean  @default(false)
+  prazoProducao  String?
+  avaliacoes     Int?     @default(0)
+  vendas         Int?     @default(0)
+  createdAt      DateTime @default(now())
+
+  collections    CollectionProduct[]
+}
+
+model Collection {
+  id        String              @id @default(cuid())
+  titulo    String
+  capa      String?
+  createdAt DateTime            @default(now())
+
+  products  CollectionProduct[]
+}
+
+model CollectionProduct {
+  id           String     @id @default(cuid())
+  collection   Collection @relation(fields: [collectionId], references: [id])
+  collectionId String
+  product      Product    @relation(fields: [productId], references: [id])
+  productId    String
+
+  @@unique([collectionId, productId])
+}
+
+model Cart {
+  id          String   @id @default(uuid())
+  items       Json
+  total       Decimal
+  observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Heart, ShoppingBag, Menu, X } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { cn } from '@/lib/utils';
 import { CATEGORIES } from '@/data/categories';

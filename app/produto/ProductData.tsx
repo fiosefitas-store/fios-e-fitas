@@ -3,11 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Heart,
-  Check,
-  ShoppingBag,
-} from 'lucide-react';
+import { Check, ShoppingBag } from 'lucide-react';
 
 import { useCart } from '@/hooks/useCart';
 import { CATEGORIES } from '@/data/categories';
@@ -25,7 +21,6 @@ export default function ProductData({ produto, setMainImage }: Props) {
   const [selectedTamanho, setSelectedTamanho] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState('');
   const [personalizacao, setPersonalizacao] = useState('');
-  const [isFavorite, setIsFavorite] = useState(false);
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
@@ -34,11 +29,6 @@ export default function ProductData({ produto, setMainImage }: Props) {
       setSelectedTamanho(produto.tamanhos[0] || '');
       setSelectedMaterial(produto.materiais[0] || '');
 
-      const favs = JSON.parse(
-        localStorage.getItem('fiosefitas_favorites') || '[]'
-      );
-
-      setIsFavorite(favs.includes(produto.id));
     }
   }, [produto]);
 

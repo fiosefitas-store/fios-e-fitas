@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Link from 'next/link';
 import ProductCard from '@/components/produto/ProductCard';
 import produtosData from '@/data/produtos.json';
 
@@ -45,7 +46,7 @@ export default function ProdutosDestaque() {
           <h2 className="font-display text-4xl text-[#3D261D] mb-4 uppercase">Nossos Destaques</h2>
           <p className="text-[#A67C6D] text-lg flex items-center gap-3">
             <span>As peças mais amadas do nosso atelier.</span>
-            <a href="/destaques" className="text-[#F4845F] font-semibold hover:underline">Ver todos</a>
+            <Link href="/todos" className="text-[#F4845F] font-semibold hover:underline">Ver todos</Link>
           </p>
         </div>
 

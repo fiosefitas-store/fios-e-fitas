@@ -1,8 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 interface ProductCardProps {
   produto: {

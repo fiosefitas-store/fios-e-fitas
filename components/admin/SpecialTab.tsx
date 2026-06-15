@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, Edit2, Trash2, X, Check } from "lucide-react";
 
-import { Produto, Colecao } from "./page";
+import { Produto, Colecao } from "../../app/admin/dashboard/page";
 
 interface Props {
   produtos: Produto[];

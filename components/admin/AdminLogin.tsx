@@ -9,12 +9,37 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleLogin = () => {
-    if (username === "admin" && password === "nuzy") {
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+      let data: any = null;
+
+      try {
+        data = await response.json();
+      } catch (e) {
+        // non-json response
+        const text = await response.text();
+        data = { error: text || `Status ${response.status}` };
+      }
+
+      if (!response.ok) {
+        setError(data?.error || `Erro: ${response.status}`);
+        return;
+      }
+
       localStorage.setItem("adminAuth", "true");
       router.push("/admin/dashboard");
-    } else {
-      setError("Credenciais invalidas. Tente novamente.");
+    } catch {
+      setError("Erro ao conectar com o servidor. Veja o console do servidor para detalhes.");
     }
   };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Tab } from "./page";
+import { Tab } from "../../app/admin/dashboard/page";
 
 interface Props {
   activeTab: Tab;

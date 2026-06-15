@@ -8,7 +8,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-import { Tab } from "./page";
+import { Tab } from "../../app/admin/dashboard/page";
 
 interface Props {
   activeTab: Tab;

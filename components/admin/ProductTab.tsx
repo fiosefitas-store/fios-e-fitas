@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 
-import { Produto } from "./page";
+import { Produto } from "../../app/admin/dashboard/page";
 import { COR_MAP, COLOR_LIST } from "@/lib/colors";
 import { CATEGORIES } from "@/data/categories";
 
