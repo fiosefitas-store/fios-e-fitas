@@ -36,8 +36,8 @@ export default function AdminLogin() {
         return;
       }
 
-      localStorage.setItem("adminAuth", "true");
-      router.push("/admin/dashboard");
+      // localStorage.setItem("adminAuth", "true");
+      // router.push("/admin/dashboard");
     } catch {
       setError("Erro ao conectar com o servidor. Veja o console do servidor para detalhes.");
     }
@@ -62,7 +62,12 @@ export default function AdminLogin() {
           <p className="text-[#A67C6D] text-sm">Painel Administrativo</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4" onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleLogin();
+            }
+          }}
+        >
           <div>
             <label className="block text-sm font-semibold text-[#3D261D] mb-2">
               Usuario

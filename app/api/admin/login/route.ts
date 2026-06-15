@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
       try {
         admin = await prisma.admin.findUnique({ where: { username } });
-        console.log("ADMIN PRISMA:", admin);
+        // console.log("ADMIN PRISMA:", admin);
       } catch (e) {
         admin = null;
       }
@@ -76,7 +76,6 @@ export async function POST(req: Request) {
           console.warn('No Supabase client available (check env vars)');
         } else {
           admin = await findAdminInSupabase(supabaseClient, username);
-          console.log('ADMIN:', admin);
         }
       } catch (e) {
         console.warn('Supabase import/lookup failed.', e);
