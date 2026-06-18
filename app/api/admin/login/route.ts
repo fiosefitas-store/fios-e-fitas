@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-
+import {prisma} from '@/lib/prisma';
 export const runtime = 'nodejs';
 
 // Diagnostic: log presence of important env vars (no secrets)
@@ -42,11 +42,18 @@ export async function POST(req: Request) {
     // try to import prisma dynamically to avoid top-level crashes when DATABASE_URL missing
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const prismaMod = await import('@/lib/prisma');
-      const prisma = prismaMod.default;
+      const {prisma} = await import('@/lib/prisma');
+
 
       try {
+        console.log("USERNAME RECEBIDO:", username);
+
+        const all = await prisma.admin.findMany();
+        console.log("TODOS ADMINS:", all);
+
         admin = await prisma.admin.findUnique({ where: { username } });
+
+        console.log("ADMIN ENCONTRADO:", admin);
         // console.log("ADMIN PRISMA:", admin);
       } catch (e) {
         admin = null;

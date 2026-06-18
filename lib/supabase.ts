@@ -10,6 +10,8 @@ export function createServiceSupabase() {
   if (!url || !serviceKey) {
     throw new Error('Supabase service key or URL missing');
   }
+  console.log("URL:", url);
+  console.log("KEY:", anonKey?.slice(0, 10));
 
   return createClient(url, serviceKey);
 }

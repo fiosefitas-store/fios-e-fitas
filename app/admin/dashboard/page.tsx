@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import Sidebar from "@/components/admin/Sidebar";
 import Dashboard from "@/components/admin/Dashboard";
-import ProductTab from "@/components/admin/ProductTab";
+import ProductTab from "@/components/admin/products/ProductTab";
 import SpecialTab from "@/components/admin/SpecialTab";
 import HomeTab from "@/components/admin/HomeTab";
 import FavoriteTab from "@/components/admin/FavoriteTab";
@@ -22,8 +22,12 @@ export interface Produto {
   categoria: string;
   subcategoria?: string;
   imagem: string;
-  cores: string[];
-  corImagens?: Record<string, string>;
+
+  cores: {
+    nome: string;
+    imagem: string;
+  }[];
+
   tamanhos: string[];
   tamanhosCm?: Record<string, string>;
   materiais: string[];
@@ -49,8 +53,13 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("produtos");
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [sazonais, setSazonais] = useState<Colecao[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const auth = localStorage.getItem("adminAuth");
 
     if (auth !== "true") {
@@ -61,7 +70,12 @@ export default function AdminDashboardPage() {
     const saved = localStorage.getItem("admin_produtos");
 
     if (saved) {
-      setProdutos(JSON.parse(saved));
+      try {
+        setProdutos(JSON.parse(saved));
+      } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+        setProdutos(produtosBase as Produto[]);
+      }
     } else {
       setProdutos(produtosBase as Produto[]);
     }
@@ -69,28 +83,44 @@ export default function AdminDashboardPage() {
     const savedSaz = localStorage.getItem("admin_sazonais");
 
     if (savedSaz) {
-      setSazonais(JSON.parse(savedSaz));
+      try {
+        setSazonais(JSON.parse(savedSaz));
+      } catch (error) {
+        console.error("Erro ao carregar sazonais:", error);
+      }
     }
+
+    setLoading(false);
   }, [router]);
 
   const saveProdutos = (updated: Produto[]) => {
     setProdutos(updated);
-    localStorage.setItem(
-      "admin_produtos",
-      JSON.stringify(updated)
-    );
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("admin_produtos", JSON.stringify(updated));
+      } catch (error) {
+        console.error("Erro ao salvar produtos no localStorage:", error);
+        // localStorage cheio ou indisponível - continuar mesmo assim
+      }
+    }
   };
 
   const saveSazonais = (updated: Colecao[]) => {
     setSazonais(updated);
-    localStorage.setItem(
-      "admin_sazonais",
-      JSON.stringify(updated)
-    );
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("admin_sazonais", JSON.stringify(updated));
+      } catch (error) {
+        console.error("Erro ao salvar sazonais no localStorage:", error);
+        // localStorage cheio ou indisponível - continuar mesmo assim
+      }
+    }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("adminAuth");
+    }
     router.push("/admin");
   };
 

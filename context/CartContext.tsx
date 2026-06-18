@@ -104,6 +104,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     try {
       const savedCart = localStorage.getItem('fiosefitas_cart');
       if (savedCart) {
@@ -116,11 +117,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('fiosefitas_cart', JSON.stringify({
-      items: state.items,
-      total: state.total,
-      observacoes: state.observacoes,
-    }));
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem('fiosefitas_cart', JSON.stringify({
+        items: state.items,
+        total: state.total,
+        observacoes: state.observacoes,
+      }));
+    } catch (error) {
+      console.error('Failed to save cart', error);
+    }
   }, [state.items, state.total, state.observacoes]);
 
   return (

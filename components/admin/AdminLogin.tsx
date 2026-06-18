@@ -36,8 +36,11 @@ export default function AdminLogin() {
         return;
       }
 
-      // localStorage.setItem("adminAuth", "true");
-      // router.push("/admin/dashboard");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("adminAuth", "true");
+        localStorage.setItem("token", data.token);
+      }
+      router.push("/admin/dashboard");
     } catch {
       setError("Erro ao conectar com o servidor. Veja o console do servidor para detalhes.");
     }
@@ -54,7 +57,7 @@ export default function AdminLogin() {
       >
         <div className="text-center mb-8">
           <h1
-            className="text-3xl font-bold text-[#F4845F] mb-1"
+            className="text-3xl font-bold text-primary mb-1"
             style={{ fontFamily: "var(--font-logo)" }}
           >
             Fios e Fitas
@@ -77,7 +80,7 @@ export default function AdminLogin() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="admin"
-              className="w-full px-4 py-3 border border-[#E4D0C5] rounded-xl text-[#3D261D] placeholder-[#C9A898] focus:outline-none focus:border-[#F4845F] focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)]"
+              className="w-full px-4 py-3 border border-[#E4D0C5] rounded-xl text-[#3D261D] placeholder-[#C9A898] focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)]"
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             />
           </div>
@@ -90,7 +93,7 @@ export default function AdminLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••"
-              className="w-full px-4 py-3 border border-[#E4D0C5] rounded-xl text-[#3D261D] placeholder-[#C9A898] focus:outline-none focus:border-[#F4845F] focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)]"
+              className="w-full px-4 py-3 border border-[#E4D0C5] rounded-xl text-[#3D261D] placeholder-[#C9A898] focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)]"
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             />
           </div>

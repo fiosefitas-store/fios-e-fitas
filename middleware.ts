@@ -14,7 +14,7 @@ export function middleware(req: NextRequest) {
     const cookie = req.cookies.get("adminAuth")?.value ?? null;
 
 
-    if (cookie !== "true") {
+    if (!cookie || cookie !== "true") {
       const url = req.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);

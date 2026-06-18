@@ -21,6 +21,7 @@ export default function SpecialTab({
 }: Props) {
   const [editSaz, setEditSaz] = useState<Colecao | null>(null);
   const [isSazModalOpen, setIsSazModalOpen] = useState(false);
+  const [editingCapaId, setEditingCapaId] = useState<string | null>(null);
 
   // toggle produto dentro da coleção
   const toggleProdutoInColecao = (produtoId: string) => {
@@ -110,7 +111,7 @@ export default function SpecialTab({
             className="bg-white rounded-2xl p-4"
             style={{ boxShadow: "var(--shadow-card)" }}
           >
-            <div className="aspect-[3/2] mb-3 bg-[#F9F3EF] rounded-lg overflow-hidden">
+            <div className="aspect-[3/2] mb-3 bg-[#F9F3EF] rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setEditingCapaId(c.id)}>
               {c.capa ? (
                 <img
                   src={c.capa}
@@ -241,6 +242,95 @@ export default function SpecialTab({
                 style={{ background: "#F4845F" }}
               >
                 Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL UPLOAD CAPA */}
+      {editingCapaId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold">
+                Upload da Capa
+              </h3>
+
+              <button onClick={() => setEditingCapaId(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-[#F4845F] rounded-2xl p-8 text-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="capa-upload"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const imageData = event.target?.result as string;
+
+                        const updated = sazonais.map((c) =>
+                          c.id === editingCapaId
+                            ? { ...c, capa: imageData }
+                            : c
+                        );
+
+                        saveSazonais(updated);
+                        setEditingCapaId(null);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+
+                <label
+                  htmlFor="capa-upload"
+                  className="cursor-pointer block"
+                >
+                  <p className="font-medium text-[#3D261D]">
+                    Clique para fazer upload
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    ou arraste uma imagem
+                  </p>
+                </label>
+              </div>
+
+              {sazonais.find((c) => c.id === editingCapaId)?.capa && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium mb-2">
+                    Prévia:
+                  </p>
+                  <img
+                    src={sazonais.find((c) => c.id === editingCapaId)?.capa || ""}
+                    alt="Preview"
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setEditingCapaId(null)}
+                className="flex-1 py-3 border rounded-full"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={() => setEditingCapaId(null)}
+                className="flex-1 py-3 rounded-full text-white"
+                style={{ background: "#F4845F" }}
+              >
+                Pronto
               </button>
             </div>
           </div>
