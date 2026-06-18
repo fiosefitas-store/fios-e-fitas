@@ -5,7 +5,7 @@ type ResponseData =
   | { url: string }
   | { error: string };
 
-export default async function handler(
+export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
