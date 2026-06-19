@@ -107,7 +107,7 @@ export default function ColorImageModal({
               className={`block border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${
                 isUploading
                   ? "bg-gray-50 border-gray-300 opacity-50 cursor-not-allowed"
-                  : "border-[#F4845F] hover:bg-[#FFF3ED]"
+                  : "border-primary hover:bg-[#FFF3ED]"
               }`}
             >
               <p className="font-medium text-[#3D261D]">
@@ -125,7 +125,7 @@ export default function ColorImageModal({
               />
               <label
                 htmlFor="upload-color"
-                className={`block text-center font-medium transition-colors text-[#F4845F] cursor-pointer hover:underline ${
+                className={`block text-center font-medium transition-colors text-primary cursor-pointer hover:underline ${
                   isUploading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >

@@ -45,7 +45,7 @@ export default function Sidebar({
   ] as const;
 
   return (
-    <aside className="w-64 shrink-0 flex flex-col bg-[#3D261D]">
+    <aside className="sticky left-0 top-0 h-screen w-64 flex flex-col bg-[#3D261D]">
       <div className="px-6 py-8">
         <h1
           className="text-2xl font-bold text-[#FAC9A8] mb-1"

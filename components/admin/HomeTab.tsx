@@ -116,7 +116,7 @@ export default function HomeTab({
 
             <button
               onClick={() => setActiveTab("produtos")}
-              className="text-sm font-medium text-[#F4845F] flex items-center gap-1"
+              className="text-sm font-medium text-primary flex items-center gap-1"
             >
               Ver todos
               <ArrowRight size={14} />
@@ -134,7 +134,7 @@ export default function HomeTab({
                   key={produto.id}
                   className={`flex items-center gap-4 px-6 py-4 ${
                     index !== ultimosProdutos.length - 1
-                      ? "border-b border-[#F9F3EF]"
+                      ? "border-b border-bg-section"
                       : ""
                   }`}
                 >
@@ -154,7 +154,7 @@ export default function HomeTab({
                     </p>
                   </div>
 
-                  <span className="font-semibold text-[#F4845F]">
+                  <span className="font-semibold text-primary">
                     R$ {produto.preco.toFixed(2)}
                   </span>
                 </div>
@@ -175,7 +175,7 @@ export default function HomeTab({
 
             <button
               onClick={() => setActiveTab("sazonais")}
-              className="text-sm font-medium text-[#F4845F] flex items-center gap-1"
+              className="text-sm font-medium text-primary flex items-center gap-1"
             >
               Gerenciar
               <ArrowRight size={14} />
@@ -193,7 +193,7 @@ export default function HomeTab({
                   key={colecao.id}
                   className={`flex items-center justify-between px-6 py-4 ${
                     index !== sazonais.length - 1
-                      ? "border-b border-[#F9F3EF]"
+                      ? "border-b border-bg-section"
                       : ""
                   }`}
                 >
@@ -209,7 +209,7 @@ export default function HomeTab({
 
                   <button
                     onClick={() => setActiveTab("sazonais")}
-                    className="text-[#F4845F]"
+                    className="text-primary"
                   >
                     <ArrowRight size={18} />
                   </button>
@@ -251,7 +251,7 @@ function StatCard({
         <div className="w-12 h-12 rounded-xl bg-[#FFF3ED] flex items-center justify-center">
           <Icon
             size={22}
-            className="text-[#F4845F]"
+            className="text-primary"
           />
         </div>
       </div>

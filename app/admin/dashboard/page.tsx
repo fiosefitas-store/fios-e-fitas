@@ -54,6 +54,7 @@ export default function AdminDashboardPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [sazonais, setSazonais] = useState<Colecao[]>([]);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -84,7 +85,15 @@ export default function AdminDashboardPage() {
 
     if (savedSaz) {
       try {
-        setSazonais(JSON.parse(savedSaz));
+        const parsed = JSON.parse(savedSaz);
+
+        if (Array.isArray(parsed)) {
+          setSazonais(parsed as Colecao[]);
+        } else {
+          console.warn("Invalid admin_sazonais in localStorage, clearing it");
+          localStorage.removeItem("admin_sazonais");
+          setSazonais([]);
+        }
       } catch (error) {
         console.error("Erro ao carregar sazonais:", error);
       }

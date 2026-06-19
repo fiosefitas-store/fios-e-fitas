@@ -14,7 +14,7 @@ export async function uploadImageToSupabase(
     const fileName = `${produtoId}-${cor}-${Date.now()}.${file.name.split(".").pop()}`;
     const { data, error } = await supabase.storage
       .from("produtos")
-      .upload(`cores/${fileName}`, file, {
+      .upload(`${produtoId}/cores/${fileName}`, file, {
         cacheControl: "3600",
         upsert: false,
       });
@@ -54,4 +54,25 @@ export function convertBase64ToFile(base64: string, fileName: string): File {
   }
 
   return new File([u8arr], fileName, { type: mime });
+}
+
+
+export async function uploadSazonalImageToSupabase(file: File): Promise<string> {
+  if (!supabase) {
+    throw new Error("Supabase não configurado");
+  }
+
+  const fileName = `sazonais/${Date.now()}-${file.name}`;
+
+  const { data, error } = await supabase.storage
+    .from("sazonais")
+    .upload(fileName, file);
+
+  if (error) throw new Error(error.message);
+
+  const { data: publicUrl } = supabase.storage
+    .from("sazonais")
+    .getPublicUrl(data.path);
+
+  return publicUrl.publicUrl;
 }

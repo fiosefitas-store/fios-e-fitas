@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Plus, Edit2, Trash2, X, Check } from "lucide-react";
 
-import { Produto, Colecao } from "../../app/admin/dashboard/page";
+import { uploadSazonalImageToSupabase } from "@/lib/imageUpload";
+import { Produto, Colecao } from "@/app/admin/dashboard/page";
+import { useEffect, useState } from "react";
 
 interface Props {
   produtos: Produto[];
@@ -19,9 +20,34 @@ export default function SpecialTab({
   sazonais,
   saveSazonais,
 }: Props) {
+
+  const loadSazonais = async () => {
+    const res = await fetch("/api/admin/sazonal");
+
+    console.log("Status:", res.status);
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("[sazonal] load error", res.status, text);
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      console.error("[sazonal] invalid data received:", data);
+      saveSazonais([]);
+      return;
+    }
+
+    saveSazonais(data);
+  };
+
   const [editSaz, setEditSaz] = useState<Colecao | null>(null);
   const [isSazModalOpen, setIsSazModalOpen] = useState(false);
   const [editingCapaId, setEditingCapaId] = useState<string | null>(null);
+
+  const safeSazonais = Array.isArray(sazonais) ? sazonais : [];
 
   // toggle produto dentro da coleção
   const toggleProdutoInColecao = (produtoId: string) => {
@@ -37,37 +63,85 @@ export default function SpecialTab({
     });
   };
 
+
   // salvar coleção (create/update)
-  const handleSaveColecao = () => {
+  const handleSaveColecao = async () => {
     if (!editSaz) return;
 
-    const exists = sazonais.some((s) => s.id === editSaz.id);
+    const exists = safeSazonais.some((s) => s.id === editSaz.id);
+    const url = exists
+      ? `/api/admin/sazonal/${editSaz.id}`
+      : `/api/admin/sazonal`;
 
-    const updated = exists
-      ? sazonais.map((s) =>
-          s.id === editSaz.id ? editSaz : s
-        )
-      : [...sazonais, editSaz];
+    const method = exists ? "PUT" : "POST";
 
-    saveSazonais(updated);
+    await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(editSaz),
+    });
+
+    await loadSazonais();
 
     setEditSaz(null);
     setIsSazModalOpen(false);
   };
 
   // delete coleção
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Remover esta coleção?")) return;
 
-    saveSazonais(sazonais.filter((s) => s.id !== id));
+    await fetch(`/api/admin/sazonal/${id}`, {
+      method: "DELETE",
+    });
 
-    saveProdutos(
-      produtos.map((p) =>
-        p.colecaoEspecial === id
-          ? { ...p, colecaoEspecial: null }
-          : p
-      )
-    );
+    await loadSazonais();
+  };
+
+  const handleUploadCapa = async (
+    file: File,
+    id: string
+  ) => {
+    const url = await uploadSazonalImageToSupabase (file);
+
+    const colecao = safeSazonais.find((c) => c.id === id);
+
+    await fetch(`/api/admin/sazonal/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        titulo: colecao?.titulo,
+        produtoIds: colecao?.produtoIds,
+        capa: url,
+      }),
+    });
+
+    await loadSazonais();
+    setEditingCapaId(null);
+  };
+
+  const handleRemoveCapa = async () => {
+    if (!editingCapaId) return;
+
+    const colecao = safeSazonais.find((c) => c.id === editingCapaId);
+
+    await fetch(`/api/admin/sazonal/${editingCapaId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        titulo: colecao?.titulo,
+        produtoIds: colecao?.produtoIds,
+        capa: null,
+      }),
+    });
+
+    await loadSazonais();
   };
 
   return (
@@ -87,7 +161,7 @@ export default function SpecialTab({
         <button
           onClick={() => {
             setEditSaz({
-              id: `saz-${Date.now()}`,
+              id: "",
               titulo: "",
               capa: null,
               produtoIds: [],
@@ -105,13 +179,13 @@ export default function SpecialTab({
 
       {/* LISTA COLEÇÕES */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {sazonais.map((c) => (
+        {safeSazonais.map((c) => (
           <div
             key={c.id}
             className="bg-white rounded-2xl p-4"
             style={{ boxShadow: "var(--shadow-card)" }}
           >
-            <div className="aspect-[3/2] mb-3 bg-[#F9F3EF] rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setEditingCapaId(c.id)}>
+            <div className="aspect-3/2 mb-3 bg-bg-section rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setEditingCapaId(c.id)}>
               {c.capa ? (
                 <img
                   src={c.capa}
@@ -165,9 +239,9 @@ export default function SpecialTab({
             {/* HEADER MODAL */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold">
-                {editSaz.id.includes("saz-")
-                  ? "Nova Coleção"
-                  : "Editar Coleção"}
+                {editSaz.id
+                  ? "Editar Coleção"
+                  : "Nova Coleção"}
               </h3>
 
               <button onClick={() => setIsSazModalOpen(false)}>
@@ -193,7 +267,7 @@ export default function SpecialTab({
               Selecione produtos
             </p>
 
-            <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-auto border p-3 rounded-xl">
+            <div className="grid grid-cols-2 gap-3 max-h-75 overflow-auto border p-3 rounded-xl">
               {produtos.map((p) => {
                 const selected =
                   editSaz.produtoIds.includes(p.id);
@@ -206,7 +280,7 @@ export default function SpecialTab({
                     }
                     className={`flex items-center gap-2 p-2 rounded-lg border ${
                       selected
-                        ? "border-[#F4845F] bg-[#FFF3ED]"
+                        ? "border-primary bg-[#FFF3ED]"
                         : "border-gray-200"
                     }`}
                   >
@@ -220,7 +294,7 @@ export default function SpecialTab({
                     </span>
 
                     {selected && (
-                      <Check size={14} className="text-[#F4845F]" />
+                      <Check size={14} className="text-primary" />
                     )}
                   </button>
                 );
@@ -263,7 +337,7 @@ export default function SpecialTab({
             </div>
 
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-[#F4845F] rounded-2xl p-8 text-center">
+              <div className="border-2 border-dashed border-primary rounded-2xl p-8 text-center">
                 <input
                   type="file"
                   accept="image/*"
@@ -271,22 +345,9 @@ export default function SpecialTab({
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        const imageData = event.target?.result as string;
+                    if (!file || !editingCapaId) return;
 
-                        const updated = sazonais.map((c) =>
-                          c.id === editingCapaId
-                            ? { ...c, capa: imageData }
-                            : c
-                        );
-
-                        saveSazonais(updated);
-                        setEditingCapaId(null);
-                      };
-                      reader.readAsDataURL(file);
-                    }
+                    handleUploadCapa(file, editingCapaId);
                   }}
                 />
 
@@ -303,17 +364,25 @@ export default function SpecialTab({
                 </label>
               </div>
 
-              {sazonais.find((c) => c.id === editingCapaId)?.capa && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">
-                    Prévia:
-                  </p>
-                  <img
-                    src={sazonais.find((c) => c.id === editingCapaId)?.capa || ""}
-                    alt="Preview"
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                </div>
+              {safeSazonais.find((c) => c.id === editingCapaId)?.capa && (
+                <>
+                  <div className="mt-4">
+                    <p className="text-sm font-medium mb-2">
+                      Prévia:
+                    </p>
+                    <img
+                      src={safeSazonais.find((c) => c.id === editingCapaId)?.capa || ""}
+                      alt="Preview"
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                  </div>
+                  <button
+                    onClick={handleRemoveCapa}
+                    className="w-full mt-3 py-2 border border-red-300 text-red-600 rounded-xl"
+                  >
+                    Remover capa
+                  </button>
+              </>
               )}
             </div>
 
