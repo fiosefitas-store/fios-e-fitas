@@ -1,5 +1,16 @@
 {
+  "/api/admin/products/route": "app/api/admin/products/route.js",
+  "/api/admin/sazonal/route": "app/api/admin/sazonal/route.js",
+  "/api/admin/sazonal/[id]/route": "app/api/admin/sazonal/[id]/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/api/admin/login/route": "app/api/admin/login/route.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
-  "/admin/page": "app/admin/page.js"
+  "/categoria/[slug]/page": "app/categoria/[slug]/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/carrinho/page": "app/carrinho/page.js",
+  "/categoria/[slug]/[sub]/page": "app/categoria/[slug]/[sub]/page.js",
+  "/page": "app/page.js",
+  "/destaques/page": "app/destaques/page.js",
+  "/produto/[id]/page": "app/produto/[id]/page.js",
+  "/todos/page": "app/todos/page.js"
 }
