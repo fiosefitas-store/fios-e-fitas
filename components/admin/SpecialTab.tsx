@@ -65,28 +65,45 @@ export default function SpecialTab({
 
 
   // salvar coleção (create/update)
-  const handleSaveColecao = async () => {
+ const handleSaveColecao = async () => {
     if (!editSaz) return;
 
     const exists = safeSazonais.some((s) => s.id === editSaz.id);
-    const url = exists
-      ? `/api/admin/sazonal/${editSaz.id}`
-      : `/api/admin/sazonal`;
 
-    const method = exists ? "PUT" : "POST";
+    // 🔥 1. UI atualiza imediatamente
+    const updatedList = exists
+      ? safeSazonais.map((s) => (s.id === editSaz.id ? editSaz : s))
+      : [...safeSazonais, editSaz];
 
-    await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(editSaz),
-    });
+    saveSazonais(updatedList);
 
-    await loadSazonais();
-
-    setEditSaz(null);
     setIsSazModalOpen(false);
+    setEditSaz(null);
+
+    try {
+      // 🔥 2. backend depois
+      const url = exists
+        ? `/api/admin/sazonal/${editSaz.id}`
+        : `/api/admin/sazonal`;
+
+      const method = exists ? "PUT" : "POST";
+
+      await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editSaz),
+      });
+
+      // 🔥 3. opcional: sincroniza de verdade depois
+      await loadSazonais();
+    } catch (err) {
+      console.error("Erro ao salvar coleção:", err);
+
+      // ❗ rollback simples se quiser
+      await loadSazonais();
+    }
   };
 
   // delete coleção

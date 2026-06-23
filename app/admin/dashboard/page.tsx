@@ -28,14 +28,16 @@ export interface Produto {
     imagem: string;
   }[];
 
-  tamanhos: string[];
-  tamanhosCm?: Record<string, string>;
+  tamanhos: {
+    nome: string;
+    cm: string;
+  }[];
   materiais: string[];
+  avaliacoes: number;
+  reviewsCount?: number;
   destaque: boolean;
   ativo: boolean;
   personalizado: boolean;
-  prazoProducao: string;
-  avaliacoes: number;
   vendas: number;
   colecaoEspecial?: string | null;
 }

@@ -5,27 +5,38 @@
 import { useState, useEffect } from 'react';
 import { Check, ShoppingBag } from 'lucide-react';
 
+import { Cor, Tamanho } from '@/types/produtos';
 import { useCart } from '@/hooks/useCart';
 import { CATEGORIES } from '@/data/categories';
 import { COR_MAP } from '@/lib/colors';
 
-type Props = {
-  produto: any;
-  setMainImage?: (img: string) => void;
-};
+
+type Props = { produto: any; setMainImage?: (img: string) => void; };
 
 export default function ProductData({ produto, setMainImage }: Props) {
+   function getCorImagem(index: number) {
+    for (let i = index; i >= 0; i--) {
+      if (produto.cores[i]?.imagem) {
+        return produto.cores[i].imagem;
+      }
+    }
+    return produto.imagem;
+  }
+  
   const { dispatch } = useCart();
 
-  const [selectedCor, setSelectedCor] = useState('');
+  const [selectedCor, setSelectedCor] = useState<string>("");
   const [selectedTamanho, setSelectedTamanho] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState('');
   const [personalizacao, setPersonalizacao] = useState('');
   const [added, setAdded] = useState(false);
+  const tamanhoSelecionado = produto.tamanhos.find(
+    (t: Tamanho) => t.nome === selectedTamanho
+  );
 
   useEffect(() => {
     if (produto) {
-      setSelectedCor(produto.cores[0] || '');
+      setSelectedCor(produto.cores[0]?.nome || '');
       setSelectedTamanho(produto.tamanhos[0] || '');
       setSelectedMaterial(produto.materiais[0] || '');
 
@@ -71,7 +82,9 @@ export default function ProductData({ produto, setMainImage }: Props) {
 
   const descriptions = [
     'Produzido artesanalmente com materiais selecionados',
-    `Disponível nas cores: ${produto.cores.join(', ')}`,
+    `Disponível nas cores: ${produto.cores
+      .map((cor: Cor) => cor.nome)
+      .join(', ')}`,
     tamanhosStr ? `Tamanhos: ${tamanhosStr}` : `Tamanhos: ${produto.tamanhos.join(', ')}`,
     '100% personalizável conforme sua preferência',
   ];
@@ -80,6 +93,16 @@ export default function ProductData({ produto, setMainImage }: Props) {
   const matched = CATEGORIES.find((c) =>
     lowerCat.includes(c.label.toLowerCase())
   );
+
+  const descricaoCompleta = `
+    ${produto.descricao}
+
+    ${produto.materiais?.length ? `Materiais: ${produto.materiais.join(', ')}` : ''}
+
+    ${produto.cores?.length ? `Cores: ${produto.cores.map((c: Cor) => c.nome).join(', ')}` : ''}
+
+    ${produto.tamanhos?.length ? `Tamanhos: ${produto.tamanhos.map((t: any) => t.nome).join(', ')}` : ''}
+    `;
 
   return (
     <>
@@ -103,7 +126,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
         {/* PREÇO + ESTRELAS */}
         <div className="flex items-center justify-between flex-wrap gap-5">
           {/* Preço */}
-          <div className="inline-block text-[#F4845F] py-3 rounded-md font-semibold text-xl">
+          <div className="inline-block text-primary py-3 rounded-md font-semibold text-xl">
             A partir de R$ {produto.preco.toFixed(2)}
           </div>
 
@@ -111,7 +134,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
           <div className="flex items-center gap-3">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
-                <span key={i} className="text-[#F4845F] text-xl">
+                <span key={i} className="text-primary text-xl">
                   ★
                 </span>
               ))}
@@ -136,18 +159,18 @@ export default function ProductData({ produto, setMainImage }: Props) {
               </label>
 
               <div className="flex flex-wrap gap-3">
-                {produto.cores.map((cor: string) => (
+                {produto.cores.map((cor : Cor) => (
                   <button
-                    key={cor}
-                    onClick={() => setSelectedCor(cor)}
+                    key={cor.nome}
+                    onClick={() => setSelectedCor(cor.nome)}
                     className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
-                      selectedCor === cor
-                        ? 'border-[#F4845F] scale-110 shadow-md ring-2 ring-[#F4845F]/20'
-                        : 'border-[#E4D0C5] hover:border-[#F4845F]'
+                      selectedCor === cor.nome
+                        ? 'border-primary scale-110 shadow-md ring-2 ring-primary/20'
+                        : 'border-[#E4D0C5] hover:border-primary'
                     }`}
                     style={{
                       backgroundColor:
-                        corMap[cor] || '#E4D0C5',
+                        corMap[cor.nome] || '#E4D0C5',
                     }}
                   />
                 ))}
@@ -157,27 +180,45 @@ export default function ProductData({ produto, setMainImage }: Props) {
 
           {/* TAMANHOS */}
           {produto.tamanhos.length > 0 && (
-            <div className="w-full lg:w-auto">
-              <label className="block text-sm font-semibold text-[#3D261D] mb-4">
-                Tamanho
-              </label>
+          <div className="w-full lg:w-auto">
+            <label className="block text-sm font-semibold text-[#3D261D] mb-4">
+              Tamanho
+            </label>
 
-              <div className="flex items-center gap-3">
-                {produto.tamanhos.map((tam: string) => (
-                  <button
-                    key={tam}
-                    onClick={() => setSelectedTamanho(tam)}
-                    className={`w-11 h-9 flex items-center justify-center rounded-full border font-semibold transition-all ${
-                      selectedTamanho === tam
-                        ? 'bg-[#F4845F] text-white border-[#F4845F]'
-                        : 'border-[#E4D0C5] text-[#5C3D31] hover:border-[#F4845F] hover:text-[#F4845F]'
-                    }`}
-                  >
-                    {tam}
-                  </button>
-                ))}
-              </div>
+            <div className="flex items-center gap-3">
+              {produto.tamanhos.map((tam: { nome: string; cm: string }) => (
+                <button
+                  key={tam.nome}
+                  onClick={() => setSelectedTamanho(tam.nome)}
+                  className={`w-11 h-9 flex items-center justify-center rounded-full border font-semibold transition-all ${
+                    selectedTamanho === tam.nome
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-[#E4D0C5] text-[#5C3D31] hover:border-primary hover:text-primary'
+                  }`}
+                >
+                  {tam.nome}
+                </button>
+              ))}
             </div>
+
+            {/* 👇 AQUI O DISPLAY STYLE ALIEXPRESS */}
+            {selectedTamanho && (
+              <div className="mt-3 text-sm text-[#7D5547]">
+                Selecionado:{" "}
+                {tamanhoSelecionado && (
+                  <>
+                    {" "}
+                    <span className="font-semibold">
+                      {tamanhoSelecionado.nome}
+                    </span>
+                    {" ("}
+                    <span>{tamanhoSelecionado.cm}</span>
+                    {" cm)"}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
           )}
         </div>
 
@@ -194,7 +235,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
               e.target.style.height = `${e.target.scrollHeight}px`;
             }}
             rows={1}
-            className="w-full min-h-14 px-5 py-4 border border-[#F2E6E2] rounded-2xl text-[#3D261D] placeholder-[#C9A898] bg-white focus:outline-none focus:border-[#F4845F] focus:shadow-[0_0_0_3px_rgba(244,132,95,0.08)] text-sm resize-none overflow-hidden"
+            className="w-full min-h-14 px-5 py-4 border border-[#F2E6E2] rounded-2xl text-[#3D261D] placeholder-[#C9A898] bg-white focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(244,132,95,0.08)] text-sm resize-none overflow-hidden"
           />
         </div>
 
@@ -229,7 +270,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
         </h2>
 
         <div className="space-y-4 max-w-4xl flex items-start gap-3 pb-10">
-          <p className="text-sm text-[#5C3D31]">{produto.descricao}</p>
+          <p className="text-sm text-[#5C3D31] whitespace-pre-line"> {descricaoCompleta} </p>
         </div>
       </div>
     </>

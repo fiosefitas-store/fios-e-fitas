@@ -28,7 +28,7 @@ export default function ProdutoPage() {
 
   if (!produto) {
     return (
-      <div className="min-h-screen pt-[104px] flex items-center justify-center">
+      <div className="min-h-screen pt-26 flex items-center justify-center">
         <div className="text-center">
           <h2
             className="text-3xl font-bold text-[#3D261D] mb-4"
@@ -39,7 +39,7 @@ export default function ProdutoPage() {
 
           <Link
             href="/"
-            className="text-[#F4845F] underline"
+            className="text-primary underline"
           >
             Voltar para a loja
           </Link>
@@ -49,13 +49,13 @@ export default function ProdutoPage() {
   }
 
   return (
-    <div className="min-h-screen pt-[104px] bg-[#FDFAF8]">
+    <div className="min-h-screen pt-26 bg-bg">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-[#A67C6D] mb-8">
           <Link
             href="/"
-            className="hover:text-[#F4845F] transition-colors"
+            className="hover:text-primary transition-colors"
           >
             Home
           </Link>
@@ -68,7 +68,7 @@ export default function ProdutoPage() {
               .replace(/ /g, '-')
               .replace('ç', 'c')
               .replace('ê', 'e')}`}
-            className="hover:text-[#F4845F] transition-colors"
+            className="hover:text-primary transition-colors"
           >
             {produto.categoria}
           </Link>

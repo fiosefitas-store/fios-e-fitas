@@ -14,12 +14,14 @@
       { "nome": "Branco", "imagem": "/images/cores/branco.png" },
       { "nome": "Lilás", "imagem": "/images/cores/lilas.png" }
     ],
-    "tamanhos": ["P", "M", "G"],
+    "tamanhos": [
+      { "nome": "RN", "cm": null },
+      { "nome": "P", "cm": "20" }
+    ],
     "materiais": ["Cetim"],
     "destaque": true,
     "ativo": true,
     "personalizado": true,
-    "prazoProducao": "7-10 dias úteis",
     "avaliacoes": 5,
     "vendas": 142
   },
@@ -38,12 +40,16 @@
       { "nome": "Amarelo", "imagem": "/images/cores/amarelo.png" },
       { "nome": "Vermelho", "imagem": "/images/cores/vermelho.png" }
     ],
-    "tamanhos": ["P", "M", "G"],
+    "tamanhos": [
+      { "nome": "RN", "cm": null },
+      { "nome": "P", "cm": "20" },
+      { "nome": "M", "cm": "25" },
+      { "nome": "G", "cm": "30" }
+    ],
     "materiais": ["Cetim"],
     "destaque": true,
     "ativo": true,
     "personalizado": true,
-    "prazoProducao": "7-10 dias úteis",
     "avaliacoes": 5,
     "vendas": 98
   },
@@ -61,12 +67,13 @@
       { "nome": "Bege", "imagem": "/images/cores/bege.png" },
       { "nome": "Branco", "imagem": "/images/cores/branco.png" }
     ],
-    "tamanhos": ["M", "G"],
+    "tamanhos": [
+      { "nome": "Único", "cm": "30" }
+    ],
     "materiais": ["Crochê", "Algodão"],
     "destaque": true,
     "ativo": true,
     "personalizado": true,
-    "prazoProducao": "7-10 dias úteis",
     "avaliacoes": 5,
     "vendas": 67
   },
@@ -85,12 +92,14 @@
       { "nome": "Branco", "imagem": "/images/cores/branco.png" },
       { "nome": "Lilás", "imagem": "/images/cores/lilas.png" }
     ],
-    "tamanhos": ["RN", "P"],
+    "tamanhos": [
+      { "nome": "RN", "cm": null },
+      { "nome": "P", "cm": "20" }
+    ],
     "materiais": ["Algodão", "Crochê"],
     "destaque": true,
     "ativo": true,
     "personalizado": true,
-    "prazoProducao": "7-10 dias úteis",
     "avaliacoes": 5,
     "vendas": 203
   }

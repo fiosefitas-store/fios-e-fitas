@@ -6,6 +6,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Admin {
@@ -25,14 +26,11 @@ model Product {
   imagem         String
   imagens        Json?
   cores          Json?
-  corImagens     Json?
   tamanhos       Json?
-  tamanhosCm     Json?
   materiais      Json?
   destaque       Boolean  @default(false)
   ativo          Boolean  @default(true)
   personalizado  Boolean  @default(false)
-  prazoProducao  String?
   avaliacoes     Int?     @default(0)
   vendas         Int?     @default(0)
   createdAt      DateTime @default(now())

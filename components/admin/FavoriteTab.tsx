@@ -2,6 +2,7 @@
 
 import { Star } from "lucide-react";
 import { Produto } from "../../app/admin/dashboard/page";
+import { productsService } from "@/app/services/productsService";
 
 interface Props {
   produtos: Produto[];
@@ -16,17 +17,25 @@ export default function FavoriteTab({
     (p) => p.destaque
   );
 
-  const handleToggleDestaque = (id: string) => {
+  const handleToggleDestaque = async (id: string) => {
+    const produto = produtos.find((p) => p.id === id);
+    if (!produto) return;
+
+    const updated = {
+      ...produto,
+      destaque: !produto.destaque,
+    };
+
+    // UI imediata
     saveProdutos(
-      produtos.map((p) =>
-        p.id === id
-          ? {
-              ...p,
-              destaque: !p.destaque,
-            }
-          : p
-      )
+      produtos.map((p) => (p.id === id ? updated : p))
     );
+
+    try {
+      await productsService.update(updated);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -52,8 +61,8 @@ export default function FavoriteTab({
           <span
             className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
               destaques.length >= 8
-                ? "bg-[#FFF3ED] text-[#F4845F]"
-                : "bg-[#F9F3EF] text-[#A67C6D]"
+                ? "bg-[#FFF3ED] text-primary"
+                : "bg-bg-section text-[#A67C6D]"
             }`}
           >
             <Star
@@ -77,7 +86,7 @@ export default function FavoriteTab({
             key={produto.id}
             className={`bg-white rounded-2xl overflow-hidden cursor-pointer transition-all border-2 ${
               produto.destaque
-                ? "border-[#F4845F]"
+                ? "border-primary"
                 : "border-transparent"
             }`}
             style={{
@@ -100,7 +109,7 @@ export default function FavoriteTab({
               );
             }}
           >
-            <div className="aspect-square bg-[#F9F3EF]">
+            <div className="aspect-square bg-bg-section">
               <img
                 src={produto.imagem}
                 alt={produto.nome}
@@ -123,8 +132,8 @@ export default function FavoriteTab({
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                     produto.destaque
-                      ? "bg-[#F4845F] text-white"
-                      : "bg-[#F2E8E1] text-[#A67C6D]"
+                      ? "bg-primary text-white"
+                      : "bg-bg-section text-[#A67C6D]"
                   }`}
                 >
                   <Star
@@ -139,7 +148,7 @@ export default function FavoriteTab({
               </div>
 
               <div className="mt-4 flex items-center justify-between">
-                <span className="font-bold text-[#F4845F]">
+                <span className="font-bold text-primary">
                   R${" "}
                   {produto.preco.toFixed(2)}
                 </span>
