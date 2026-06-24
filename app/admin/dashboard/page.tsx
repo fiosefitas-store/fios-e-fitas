@@ -25,7 +25,7 @@ export interface Produto {
 
   cores: {
     nome: string;
-    imagem: string;
+    imagem?: string | null;
   }[];
 
   tamanhos: {

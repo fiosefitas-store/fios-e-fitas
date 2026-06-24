@@ -5,12 +5,21 @@ import { X, Trash2 } from "lucide-react";
 import { Produto } from "@/app/admin/dashboard/page";
 import { COR_MAP } from "@/lib/colors";
 import { uploadImageToSupabase } from "@/lib/imageUpload";
+import { deleteImageFromStorage } from "@/lib/supabaseStorage";
 
 interface Props {
   editingColorImage: string;
   editProduto: Produto;
   setEditProduto: (p: Produto) => void;
   onClose: () => void;
+}
+
+export function extractStoragePath(url: string) {
+  try {
+    return url.split("/").slice(-1)[0];
+  } catch {
+    return url;
+  }
 }
 
 export default function ColorImageModal({
@@ -24,48 +33,55 @@ export default function ColorImageModal({
   const corAtual = editProduto.cores.find(
     (c) => c.nome === editingColorImage
   );
+
   const hasImage = !!corAtual?.imagem;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const productId = editProduto.id;
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
 
-    uploadImageToSupabase(file, editProduto.id, editingColorImage).then((url) => {
+    try {
+      const url = await uploadImageToSupabase(
+        file,
+        productId,
+        editingColorImage
+      );
+
+      if (!url) return;
+
+      setEditProduto({
+        ...editProduto,
+        cores: editProduto.cores.some((c) => c.nome === editingColorImage)
+          ? editProduto.cores.map((c) =>
+              c.nome === editingColorImage ? { ...c, imagem: url } : c
+            )
+          : [...editProduto.cores, { nome: editingColorImage, imagem: url }],
+      });
+    } finally {
       setIsUploading(false);
-      if (url) {
-        setEditProduto({
-          ...editProduto,
-          cores: editProduto.cores.some((c) => c.nome === editingColorImage)
-            ? editProduto.cores.map((c) =>
-                c.nome === editingColorImage
-                  ? { ...c, imagem: url }
-                  : c
-              )
-            : [...editProduto.cores, { nome: editingColorImage, imagem: url }],
-        });
-      } else {
-        alert("Erro ao fazer upload da imagem");
-      }
-    });
+    }
   };
 
-  const handleRemove = () => {
-    setEditProduto({
-      ...editProduto,
-      cores: editProduto.cores.filter((c) => c.nome !== editingColorImage),
-    });
-    onClose();
-  };
+  // 🔥 ESSE É O BOTÃO QUE VOCÊ QUER
+  const handleRemoveImage = async () => {
+    const cor = editProduto.cores.find(
+      (c) => c.nome === editingColorImage
+    );
 
-  const handleRemoveImage = () => {
+    // 1. apaga do storage (igual delete do produto)
+    if (cor?.imagem) {
+      await deleteImageFromStorage(extractStoragePath(cor.imagem));
+    }
+
+    // 2. limpa estado local (igual UI otimista do delete)
     setEditProduto({
       ...editProduto,
       cores: editProduto.cores.map((c) =>
-        c.nome === editingColorImage
-          ? { ...c, imagem: "" }
-          : c
+        c.nome === editingColorImage ? { ...c, imagem: "" } : c
       ),
     });
   };
@@ -74,15 +90,13 @@ export default function ColorImageModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-white rounded-3xl p-8 w-full max-w-sm">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold">
-            {editingColorImage}
-          </h3>
+          <h3 className="text-xl font-bold">{editingColorImage}</h3>
           <button onClick={onClose}>
             <X size={18} />
           </button>
         </div>
 
-        {/* PREVIEW DA COR */}
+        {/* PREVIEW */}
         <div className="flex justify-center mb-6">
           <div
             className="w-24 h-24 rounded-full shadow-md"
@@ -90,7 +104,7 @@ export default function ColorImageModal({
           />
         </div>
 
-        {/* AREA DE UPLOAD */}
+        {/* UPLOAD */}
         <input
           type="file"
           id="upload-color"
@@ -104,18 +118,9 @@ export default function ColorImageModal({
           {!hasImage ? (
             <label
               htmlFor="upload-color"
-              className={`block border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${
-                isUploading
-                  ? "bg-gray-50 border-gray-300 opacity-50 cursor-not-allowed"
-                  : "border-primary hover:bg-[#FFF3ED]"
-              }`}
+              className="block border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer border-primary"
             >
-              <p className="font-medium text-[#3D261D]">
-                {isUploading ? "Enviando..." : "Clique para fazer upload"}
-              </p>
-              <p className="text-sm text-gray-500">
-                {isUploading ? "" : "JPG, PNG até 5MB"}
-              </p>
+              Clique para fazer upload
             </label>
           ) : (
             <div className="space-y-3">
@@ -123,48 +128,36 @@ export default function ColorImageModal({
                 src={corAtual?.imagem || ""}
                 className="w-full h-48 object-cover rounded-2xl"
               />
+
               <label
                 htmlFor="upload-color"
-                className={`block text-center font-medium transition-colors text-primary cursor-pointer hover:underline ${
-                  isUploading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className="block text-center font-medium text-primary cursor-pointer"
               >
-                {isUploading ? "Enviando..." : "Trocar imagem"}
+                Trocar imagem
               </label>
             </div>
           )}
         </div>
 
-        {/* BOTÕES DE AÇÃO */}
-        <div className="space-y-3">
-          {hasImage && (
-            <button
-              onClick={handleRemoveImage}
-              className="w-full flex items-center justify-center gap-2 py-3 text-red-500 border border-red-200 rounded-full hover:bg-red-50 transition disabled:opacity-50"
-              disabled={isUploading}
-            >
-              <Trash2 size={16} />
-              Remover Imagem
-            </button>
-          )}
-
+        {/* BOTÃO QUE VOCÊ QUER */}
+        {hasImage && (
           <button
-            onClick={handleRemove}
-            className="w-full py-3 text-red-500 border border-red-200 rounded-full hover:bg-red-50 transition disabled:opacity-50"
+            onClick={handleRemoveImage}
             disabled={isUploading}
+            className="w-full flex items-center justify-center gap-2 py-3 text-red-500 border border-red-200 rounded-full hover:bg-red-50"
           >
-            Remover Cor
+            <Trash2 size={16} />
+            Remover Imagem
           </button>
+        )}
 
-          <button
-            onClick={onClose}
-            className="w-full py-3 text-white rounded-full hover:opacity-90 transition disabled:opacity-50"
-            style={{ background: "#F4845F" }}
-            disabled={isUploading}
-          >
-            Pronto
-          </button>
-        </div>
+        <button
+          onClick={onClose}
+          className="w-full mt-3 py-3 text-white rounded-full"
+          style={{ background: "#F4845F" }}
+        >
+          Pronto
+        </button>
       </div>
     </div>
   );

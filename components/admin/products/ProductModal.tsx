@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, Dispatch, SetStateAction  } from "react";
 import { X, ChevronDown } from "lucide-react";
 
+import { uploadImageToSupabase } from "@/lib/imageUpload";
+
 import { Produto } from "@/app/admin/dashboard/page";
 import { CATEGORIES } from "@/data/categories";
 import { COLOR_LIST, COR_MAP } from "@/lib/colors";
@@ -31,6 +33,7 @@ export default function ProductModal({
   const [isSaving, setIsSaving] = useState(false);
   const [materialInput, setMaterialInput] = useState("");
   const [tamanhoAberto, setTamanhoAberto] = useState<string | null>(null);
+  const [pendingImages, setPendingImages] = useState<Record<string, File>>({});
 
   const TAMANHOS_PADRAO = ["PP", "P", "M", "G", "Padrão"];
 
@@ -181,8 +184,7 @@ export default function ProductModal({
                     {editProduto.cores.find((c) => c.nome === cor)?.imagem && (
                         <div className="absolute inset-0 flex items-center justify-center">
                             <img
-                                src={editProduto.cores.find((c) => c.nome === cor)?.imagem}
-                                className="w-8 h-8 rounded-full object-cover"
+                                src={ editProduto.cores.find((c) => c.nome === cor)?.imagem ?? undefined }
                             />
                         </div>
                     )}
@@ -204,7 +206,7 @@ export default function ProductModal({
                       onClick={() =>
                         setEditProduto({
                           ...editProduto,
-                          imagem: cor.imagem,
+                          imagem: cor.imagem ?? "",
                         })
                       }
                       className={`relative rounded-lg overflow-hidden border-2 transition-all ${

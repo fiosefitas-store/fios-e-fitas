@@ -15,7 +15,7 @@ export default function CarrinhoPage() {
   };
 
   return (
-    <div className="min-h-screen pt-[104px] bg-[#FDFAF8]">
+    <div className="min-h-screen pt-26 bg-bg">
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/" className="flex items-center gap-2 text-[#A67C6D] hover:text-[#F4845F] transition-colors text-sm">

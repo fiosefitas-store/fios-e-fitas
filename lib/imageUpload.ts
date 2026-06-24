@@ -20,23 +20,18 @@ export async function uploadImageToSupabase(
       });
 
     if (error) {
-      console.error("❌ Erro ao fazer upload:", error);
       console.error("Detalhes:", error.message);
       alert(`Erro no upload: ${error.message}`);
       return null;
     }
 
-    console.log("✅ Upload bem-sucedido:", data);
 
     // Retorna a URL pública
     const { data: publicUrl } = supabase.storage
       .from("produtos")
       .getPublicUrl(data.path);
-
-    console.log("🔗 URL pública:", publicUrl.publicUrl);
     return publicUrl.publicUrl;
   } catch (error) {
-    console.error("❌ Erro ao fazer upload da imagem:", error);
     alert(`Erro: ${error instanceof Error ? error.message : "Erro desconhecido"}`);
     return null;
   }
