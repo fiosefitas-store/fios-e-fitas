@@ -39,7 +39,7 @@ export default function ProdutosDestaque() {
   };
 
   return (
-    <section className="py-20 px-4 md:px-8 max-w-[1400px] mx-auto">
+    <section className="py-20 px-4 md:px-8 max-w-350 mx-auto">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
         <div>
@@ -115,7 +115,7 @@ export default function ProdutosDestaque() {
           {filtered.slice(0, 8).map((produto) => (
             <div
               key={produto.id}
-              className="snap-start flex-none w-[75%] sm:w-[45%] md:w-[280px]"
+              className="snap-start flex-none w-[75%] sm:w-[45%] md:w-70"
             >
               <ProductCard produto={produto as any} />
             </div>

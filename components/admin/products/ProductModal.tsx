@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState, Dispatch, SetStateAction  } from "react";
 import { X, ChevronDown } from "lucide-react";
 
-import { uploadImageToSupabase } from "@/lib/imageUpload";
-
 import { Produto } from "@/app/admin/dashboard/page";
 import { CATEGORIES } from "@/data/categories";
 import { COLOR_LIST, COR_MAP } from "@/lib/colors";
@@ -32,8 +30,6 @@ export default function ProductModal({
   const [precoInput, setPrecoInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [materialInput, setMaterialInput] = useState("");
-  const [tamanhoAberto, setTamanhoAberto] = useState<string | null>(null);
-  const [pendingImages, setPendingImages] = useState<Record<string, File>>({});
 
   const TAMANHOS_PADRAO = ["PP", "P", "M", "G", "Padrão"];
 
@@ -175,7 +171,7 @@ export default function ProductModal({
                     }}
                     className={`relative w-10 h-10 rounded-full overflow-hidden transition-all ${
                         selected
-                        ? "ring-1 ring-offset-1 ring-offset-white ring-primary scale-105"
+                        ? "ring-2 ring-offset-1 ring-offset-white ring-primary scale-105"
                         : "hover:scale-105"
                     }`}
                     style={{ backgroundColor: COR_MAP[cor] }}
@@ -419,13 +415,17 @@ export default function ProductModal({
           <button
             onClick={async () => {
               setIsSaving(true);
+
+              onClose();
+
               try {
-                onSave(editProduto);
+                await onSave(editProduto);
+
                 if (onSaveToDatabase) {
                   await onSaveToDatabase(editProduto);
                 }
               } catch (error) {
-                console.error("Erro ao salvar:", error);
+                console.error("Erro ao salvar nos bastidores:", error);
               } finally {
                 setIsSaving(false);
               }

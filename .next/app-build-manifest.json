@@ -11,6 +11,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/dashboard/page.js"
     ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
     "/api/admin/products/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -20,6 +25,16 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/admin/products/[id]/route.js"
+    ],
+    "/api/admin/sazonal/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/admin/sazonal/[id]/route.js"
+    ],
+    "/api/admin/sazonal/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/admin/sazonal/route.js"
     ]
   }
 }

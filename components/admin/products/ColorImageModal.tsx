@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2 } from "lucide-react";
+import { X, Trash2, Ban } from "lucide-react";
 import { Produto } from "@/app/admin/dashboard/page";
 import { COR_MAP } from "@/lib/colors";
-import { uploadImageToSupabase } from "@/lib/imageUpload";
 import { deleteImageFromStorage } from "@/lib/supabaseStorage";
 
 interface Props {
@@ -14,11 +13,22 @@ interface Props {
   onClose: () => void;
 }
 
-export function extractStoragePath(url: string) {
+export function extractStoragePath(url: any) {
   try {
-    return url.split("/").slice(-1)[0];
-  } catch {
+    // Se não for string ou for vazia, evita o erro retornando vazio
+    if (!url || typeof url !== 'string') return "";
+    
+    if (url.startsWith("blob:")) return "";
+
+    const parts = url.split("/produtos/");
+    if (parts.length > 1) {
+      return parts[1];
+    }
+    
     return url;
+  } catch (err) {
+    console.error("Erro ao extrair path:", err);
+    return "";
   }
 }
 
@@ -35,55 +45,78 @@ export default function ColorImageModal({
   );
 
   const hasImage = !!corAtual?.imagem;
+  const corExisteNoProduto = !!corAtual;
 
-  const productId = editProduto.id;
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
+    // Cria a URL temporária para o navegador renderizar
+    const localPreview = URL.createObjectURL(file);
 
-    try {
-      const url = await uploadImageToSupabase(
-        file,
-        productId,
-        editingColorImage
-      );
-
-      if (!url) return;
-
-      setEditProduto({
-        ...editProduto,
-        cores: editProduto.cores.some((c) => c.nome === editingColorImage)
-          ? editProduto.cores.map((c) =>
-              c.nome === editingColorImage ? { ...c, imagem: url } : c
-            )
-          : [...editProduto.cores, { nome: editingColorImage, imagem: url }],
-      });
-    } finally {
-      setIsUploading(false);
-    }
+    setEditProduto({
+      ...editProduto,
+      cores: editProduto.cores.some((c) => c.nome === editingColorImage)
+        ? editProduto.cores.map((c) =>
+            c.nome === editingColorImage 
+              ? { ...c, imagem: localPreview, file: file } // Guarda a preview e o arquivo físico
+              : c
+          )
+        : [...editProduto.cores, { nome: editingColorImage, imagem: localPreview, file: file }],
+    });
   };
 
-  // 🔥 ESSE É O BOTÃO QUE VOCÊ QUER
   const handleRemoveImage = async () => {
     const cor = editProduto.cores.find(
       (c) => c.nome === editingColorImage
     );
 
-    // 1. apaga do storage (igual delete do produto)
-    if (cor?.imagem) {
-      await deleteImageFromStorage(extractStoragePath(cor.imagem));
-    }
+    if (!cor?.imagem) return;
 
-    // 2. limpa estado local (igual UI otimista do delete)
-    setEditProduto({
-      ...editProduto,
-      cores: editProduto.cores.map((c) =>
-        c.nome === editingColorImage ? { ...c, imagem: "" } : c
-      ),
-    });
+    try {
+      if (cor.imagem.startsWith("http") && cor.imagem.includes("supabase.co")) {
+        // Decodifica a URL para transformar %20 de volta em espaços ou caracteres normais
+        const decodedUrl = decodeURIComponent(cor.imagem);
+        await deleteImageFromStorage(decodedUrl);
+      } else if (cor.imagem.startsWith("blob:")) {
+        URL.revokeObjectURL(cor.imagem);
+      }
+
+      // Limpa o estado local
+      setEditProduto({
+        ...editProduto,
+        cores: editProduto.cores.map((c) =>
+          c.nome === editingColorImage ? { ...c, imagem: "", file: undefined } : c
+        ),
+      });
+
+    } catch (error) {
+      console.error("Erro ao remover a imagem:", error);
+    }
+  };
+
+  const handleRemoveColorEntirely = async () => {
+    try {
+      // 1. Se tiver imagem salva no Supabase, deleta ela primeiro
+      if (corAtual?.imagem && corAtual.imagem.startsWith("http") && corAtual.imagem.includes("supabase.co")) {
+        const decodedUrl = decodeURIComponent(corAtual.imagem);
+        await deleteImageFromStorage(decodedUrl);
+      } else if (corAtual?.imagem && corAtual.imagem.startsWith("blob:")) {
+        URL.revokeObjectURL(corAtual.imagem);
+      }
+
+      // 2. Filtra o array removendo este objeto de cor por completo
+      setEditProduto({
+        ...editProduto,
+        cores: editProduto.cores.filter((c) => c.nome !== editingColorImage),
+      });
+
+      // 3. Fecha o modal já que a cor não faz mais parte do produto
+      onClose();
+    } catch (error) {
+      console.error("Erro ao remover a cor completa:", error);
+    }
   };
 
   return (
@@ -128,13 +161,6 @@ export default function ColorImageModal({
                 src={corAtual?.imagem || ""}
                 className="w-full h-48 object-cover rounded-2xl"
               />
-
-              <label
-                htmlFor="upload-color"
-                className="block text-center font-medium text-primary cursor-pointer"
-              >
-                Trocar imagem
-              </label>
             </div>
           )}
         </div>
@@ -144,20 +170,45 @@ export default function ColorImageModal({
           <button
             onClick={handleRemoveImage}
             disabled={isUploading}
-            className="w-full flex items-center justify-center gap-2 py-3 text-red-500 border border-red-200 rounded-full hover:bg-red-50"
+            className="w-full flex items-center text-sm justify-center gap-2 py-3 text-red-500 border border-red-200 rounded-full hover:bg-red-50"
           >
             <Trash2 size={16} />
             Remover Imagem
           </button>
         )}
 
+        {corExisteNoProduto && (
+            <button
+              onClick={handleRemoveColorEntirely}
+              disabled={isUploading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 mt-2 text-red-500 border border-red-200 bg-red-50/50 rounded-full text-sm hover:bg-red-50 transition font-medium"
+            >
+              <Ban size={15} />
+              Remover Cor
+            </button>
+          )}
+
         <button
-          onClick={onClose}
-          className="w-full mt-3 py-3 text-white rounded-full"
+          onClick={() => {
+            // Se o usuário clicou em pronto e a cor ainda não existe na lista, adiciona ela pura!
+            const corJaExiste = editProduto.cores.some((c) => c.nome === editingColorImage);
+            
+            if (!corJaExiste) {
+              setEditProduto({
+                ...editProduto,
+                cores: [...editProduto.cores, { nome: editingColorImage, imagem: null }],
+              });
+            }
+
+            // Fecha o modal normalmente
+            onClose();
+          }}
+          className="w-full mt-3 py-3 text-white rounded-full transition-all active:scale-[0.98]"
           style={{ background: "#F4845F" }}
         >
-          Pronto
+          Salvar
         </button>
+
       </div>
     </div>
   );

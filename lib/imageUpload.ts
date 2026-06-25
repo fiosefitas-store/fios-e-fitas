@@ -1,5 +1,13 @@
 import { supabase } from "./supabase";
 
+function limparTexto(texto: string) {
+  return texto
+    .normalize("NFD")                  // Separa os acentos das letras (ex: ô vira o + ^)
+    .replace(/[\u0300-\u036f]/g, "")   // Remove os acentos
+    .replace(/\s+/g, "-")              // Substitui espaços por hífen (-)
+    .replace(/[^a-zA-Z0-9-_]/g, "");   // Remove qualquer outro caractere especial
+}
+
 export async function uploadImageToSupabase(
   file: File,
   produtoId: string,
@@ -11,7 +19,12 @@ export async function uploadImageToSupabase(
   }
 
   try {
-    const fileName = `${produtoId}-${cor}-${Date.now()}.${file.name.split(".").pop()}`;
+    // 🌟 CORREÇÃO AQUI: Passando o nome da cor e o nome do arquivo pela limpeza de texto
+    const corLimpa = limparTexto(cor);
+    const extensao = file.name.split(".").pop() || "png";
+    
+    const fileName = `${produtoId}-${corLimpa}-${Date.now()}.${extensao}`;
+
     const { data, error } = await supabase.storage
       .from("produtos")
       .upload(`${produtoId}/cores/${fileName}`, file, {
@@ -25,11 +38,11 @@ export async function uploadImageToSupabase(
       return null;
     }
 
-
     // Retorna a URL pública
     const { data: publicUrl } = supabase.storage
       .from("produtos")
       .getPublicUrl(data.path);
+      
     return publicUrl.publicUrl;
   } catch (error) {
     alert(`Erro: ${error instanceof Error ? error.message : "Erro desconhecido"}`);
@@ -51,13 +64,15 @@ export function convertBase64ToFile(base64: string, fileName: string): File {
   return new File([u8arr], fileName, { type: mime });
 }
 
-
 export async function uploadSazonalImageToSupabase(file: File): Promise<string> {
   if (!supabase) {
     throw new Error("Supabase não configurado");
   }
 
-  const fileName = `sazonais/${Date.now()}-${file.name}`;
+  // 🌟 DICA EXTRA: Também limpa o nome do arquivo aqui para evitar erros na aba sazonal
+  const extensao = file.name.split(".").pop() || "png";
+  const nomeLimpo = limparTexto(file.name.replace(`.${extensao}`, ""));
+  const fileName = `sazonais/${Date.now()}-${nomeLimpo}.${extensao}`;
 
   const { data, error } = await supabase.storage
     .from("sazonais")

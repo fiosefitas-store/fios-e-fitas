@@ -46,14 +46,10 @@ export async function POST(req: Request) {
 
 
       try {
-        console.log("USERNAME RECEBIDO:", username);
 
         const all = await prisma.admin.findMany();
-        console.log("TODOS ADMINS:", all);
 
         admin = await prisma.admin.findUnique({ where: { username } });
-
-        console.log("ADMIN ENCONTRADO:", admin);
         // console.log("ADMIN PRISMA:", admin);
       } catch (e) {
         admin = null;

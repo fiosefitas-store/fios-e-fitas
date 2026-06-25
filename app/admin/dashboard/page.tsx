@@ -26,6 +26,8 @@ export interface Produto {
   cores: {
     nome: string;
     imagem?: string | null;
+    file?: File;
+    preview?: string;
   }[];
 
   tamanhos: {
@@ -52,7 +54,7 @@ export interface Colecao {
 export default function AdminDashboardPage() {
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<Tab>("produtos");
+  const [activeTab, setActiveTab] = useState<Tab>("home");
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [sazonais, setSazonais] = useState<Colecao[]>([]);
   const [loading, setLoading] = useState(true);

@@ -2,24 +2,20 @@
 
 import { Star } from "lucide-react";
 import { Produto } from "../../app/admin/dashboard/page";
-import { productsService } from "@/app/services/productsService";
+import { productsService } from "@/app/api/services/productsService";
 
 interface Props {
   produtos: Produto[];
   saveProdutos: (produtos: Produto[]) => void;
 }
 
-export default function FavoriteTab({
-  produtos,
-  saveProdutos,
-}: Props) {
-  const destaques = produtos.filter(
-    (p) => p.destaque
-  );
+export default function FavoriteTab({ produtos, saveProdutos }: Props) {
+  const destaques = produtos.filter((p) => p.destaque);
 
   const handleToggleDestaque = async (id: string) => {
     const produto = produtos.find((p) => p.id === id);
-    if (!produto) return;
+    // 🌟 Proteção extra na função: se não achar ou estiver inativo e tentando destacar, bloqueia.
+    if (!produto || (!produto.ativo && !produto.destaque)) return;
 
     const updated = {
       ...produto,
@@ -47,14 +43,10 @@ export default function FavoriteTab({
           boxShadow: "var(--shadow-card)",
         }}
       >
-        <h2 className="text-2xl font-bold text-[#3D261D]">
-          Destaques
-        </h2>
+        <h2 className="text-2xl font-bold text-[#3D261D]">Destaques</h2>
 
         <p className="mt-1 text-sm text-[#A67C6D]">
-          Escolha até 8 produtos para
-          aparecerem na seção de destaques da
-          loja.
+          Escolha até 8 produtos ativos para aparecerem na seção de destaques da loja.
         </p>
 
         <div className="mt-4">
@@ -67,14 +59,9 @@ export default function FavoriteTab({
           >
             <Star
               size={14}
-              className={
-                destaques.length > 0
-                  ? "fill-current"
-                  : ""
-              }
+              className={destaques.length > 0 ? "fill-current" : ""}
             />
-            {destaques.length}/8 produtos
-            destacados
+            {destaques.length}/8 produtos destacados
           </span>
         </div>
       </div>
@@ -84,29 +71,29 @@ export default function FavoriteTab({
         {produtos.map((produto) => (
           <div
             key={produto.id}
-            className={`bg-white rounded-2xl overflow-hidden cursor-pointer transition-all border-2 ${
-              produto.destaque
-                ? "border-primary"
-                : "border-transparent"
+            className={`bg-white rounded-2xl overflow-hidden transition-all border-2 ${
+              produto.destaque ? "border-primary" : "border-transparent"
+            } ${
+              // 🌟 Se o produto estiver inativo, ele fica ligeiramente cinza/apagado
+              !produto.ativo ? "opacity-60 grayscale-30" : "cursor-pointer"
             }`}
             style={{
               boxShadow: "var(--shadow-card)",
             }}
             onClick={() => {
-              if (
-                !produto.destaque &&
-                destaques.length >= 8
-              ) {
-                alert(
-                  "Máximo de 8 destaques atingido."
-                );
-
+              // 🌟 NOVA VALIDAÇÃO: Se o produto não estiver ativo e o usuário tentar destacá-lo
+              if (!produto.ativo && !produto.destaque) {
+                alert("Não é possível destacar um produto inativo. Ative-o primeiro na aba de Produtos.");
                 return;
               }
 
-              handleToggleDestaque(
-                produto.id
-              );
+              // Validação de limite máximo
+              if (!produto.destaque && destaques.length >= 8) {
+                alert("Máximo de 8 destaques atingido.");
+                return;
+              }
+
+              handleToggleDestaque(produto.id);
             }}
           >
             <div className="aspect-square bg-bg-section">
@@ -138,19 +125,14 @@ export default function FavoriteTab({
                 >
                   <Star
                     size={14}
-                    className={
-                      produto.destaque
-                        ? "fill-white"
-                        : ""
-                    }
+                    className={produto.destaque ? "fill-white" : ""}
                   />
                 </div>
               </div>
 
               <div className="mt-4 flex items-center justify-between">
                 <span className="font-bold text-primary">
-                  R${" "}
-                  {produto.preco.toFixed(2)}
+                  R$ {produto.preco.toFixed(2)}
                 </span>
 
                 <span
@@ -160,9 +142,7 @@ export default function FavoriteTab({
                       : "bg-gray-100 text-gray-500"
                   }`}
                 >
-                  {produto.ativo
-                    ? "Ativo"
-                    : "Inativo"}
+                  {produto.ativo ? "Ativo" : "Inativo"}
                 </span>
               </div>
             </div>

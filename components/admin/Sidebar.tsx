@@ -65,7 +65,7 @@ export default function Sidebar({
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left overflow-hidden border-none outline-none ring-0 ${
               activeTab === key
                 ? "bg-primary text-white"
                 : "text-[#C9A898] hover:bg-white/10 hover:text-[#FAC9A8]"
@@ -80,7 +80,7 @@ export default function Sidebar({
       <div className="p-4">
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#C9A898] hover:bg-white/10 hover:text-white transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#C9A898] hover:bg-white/10 hover:text-white transition-all overflow-hidden border-none outline-none ring-0"
         >
           <LogOut size={16} />
           Sair
