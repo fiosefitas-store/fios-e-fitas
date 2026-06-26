@@ -14,7 +14,7 @@ export default function InstagramSection() {
   return (
     <section className="py-20">
       <div className="text-center mb-12 px-4">
-        <h2 className="font-display text-3xl md:text-4xl text-[#3D261D] mb-4">
+        <h2 className="font-bold text-3xl md:text-5xl text-[#3D261D] mb-4">
           Nos acompanhe no Instagram
         </h2>
         <a 

@@ -64,7 +64,7 @@ export default function ProdutosDestaque() {
 
               <Link
                 href="/todos"
-                className="mt-2 md:mt-4 underline text-right md:text-left text-[#ffc4a4] font-semibold"
+                className="mt-2 md:mt-4 underline text-right md:text-left text-[#fff0e8] font-semibold"
               >
                 Ver Todos
               </Link>

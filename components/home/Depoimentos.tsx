@@ -22,7 +22,7 @@ export default function Depoimentos() {
     <section className="bg-[#3D261D] py-24 px-4 md:px-8 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="font-display text-4xl text-[#FAC9A8] mb-4">O Que Dizem Nossas Clientes</h2>
+          <h2 className="font-bold md:text-5xl text-3xl text-[#FAC9A8] mb-4">O Que Dizem Nossos Clientes</h2>
           <p className="text-[#A67C6D] text-lg">Histórias reais de quem já se encantou com nossas peças.</p>
         </div>
 
@@ -40,7 +40,6 @@ export default function Depoimentos() {
               <div>
                 <p className="font-medium text-[#FAC9A8]">{dep.nome}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="w-2 h-2 rounded-full bg-[#25D366]"></span>
                   <span className="text-[#A67C6D] text-xs uppercase tracking-wider">Compra Verificada</span>
                 </div>
               </div>
