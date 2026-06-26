@@ -3,7 +3,7 @@
 import { Plus, Edit2, Trash2, X, Check } from "lucide-react";
 
 import { uploadSazonalImageToSupabase } from "@/lib/imageUpload";
-import { Produto, Colecao } from "@/app/admin/dashboard/page";
+import { Produto, Colecao } from "@/components/admin/Dashboard";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -46,6 +46,7 @@ export default function SpecialTab({
   const [editSaz, setEditSaz] = useState<Colecao | null>(null);
   const [isSazModalOpen, setIsSazModalOpen] = useState(false);
   const [editingCapaId, setEditingCapaId] = useState<string | null>(null);
+  const [uploadingCapaId, setUploadingCapaId] = useState<string | null>(null);
 
   const safeSazonais = Array.isArray(sazonais) ? sazonais : [];
 
@@ -108,37 +109,59 @@ export default function SpecialTab({
 
   // delete coleção
   const handleDelete = async (id: string) => {
-    if (!confirm("Remover esta coleção?")) return;
+    const colecao = safeSazonais.find((c) => c.id === id);
+    if (!colecao) return;
 
-    await fetch(`/api/admin/sazonal/${id}`, {
-      method: "DELETE",
-    });
+    // Confirmação para o usuário não deletar sem querer
+    if (!confirm(`Deseja realmente excluir a coleção "${colecao.titulo || 'Sem título'}"?`)) {
+      return;
+    }
 
-    await loadSazonais();
+    try {
+      // Mudamos o método para DELETE e removemos o body
+      const response = await fetch(`/api/admin/sazonal/${id}`, {
+        method: "DELETE", 
+      });
+
+      if (!response.ok) throw new Error("Erro ao deletar coleção no DB");
+
+      // Atualiza a lista na tela tirando a coleção deletada
+      await loadSazonais();
+    } catch (error) {
+      console.error("Erro ao deletar coleção:", error);
+      alert("Falha ao remover a coleção do servidor.");
+    }
   };
 
-  const handleUploadCapa = async (
-    file: File,
-    id: string
-  ) => {
-    const url = await uploadSazonalImageToSupabase (file);
+  const handleUploadCapa = async (file: File, id: string) => {
+    try {
+      // 1. Marca que esta coleção específica está subindo uma foto
+      setUploadingCapaId(id); 
 
-    const colecao = safeSazonais.find((c) => c.id === id);
+      const url = await uploadSazonalImageToSupabase(file);
+      const colecao = safeSazonais.find((c) => c.id === id);
 
-    await fetch(`/api/admin/sazonal/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        titulo: colecao?.titulo,
-        produtoIds: colecao?.produtoIds,
-        capa: url,
-      }),
-    });
+      await fetch(`/api/admin/sazonal/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          titulo: colecao?.titulo,
+          produtoIds: colecao?.produtoIds,
+          capa: url,
+        }),
+      });
 
-    await loadSazonais();
-    setEditingCapaId(null);
+      await loadSazonais(); 
+      
+    } catch (error) {
+      console.error("Erro ao fazer upload da capa:", error);
+      alert("Erro ao salvar a imagem.");
+    } finally {
+      // 2. Desmarca o estado quando terminar tudo (sucesso ou erro)
+      setUploadingCapaId(null); 
+    }
   };
 
   const handleRemoveCapa = async () => {
@@ -170,7 +193,7 @@ export default function SpecialTab({
             Coleções Especiais
           </h3>
 
-          <p className="text-[#A67C6D] text-sm">
+          <p className="text-[#A67C6D] text-sm hidden md:flex">
             Selecione produtos para montar coleções sazonais.
           </p>
         </div>
@@ -186,7 +209,7 @@ export default function SpecialTab({
 
             setIsSazModalOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-white"
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white"
           style={{ background: "#F4845F" }}
         >
           <Plus size={14} />
@@ -196,56 +219,78 @@ export default function SpecialTab({
 
       {/* LISTA COLEÇÕES */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {safeSazonais.map((c) => (
-          <div
-            key={c.id}
-            className="bg-white rounded-2xl p-4"
-            style={{ boxShadow: "var(--shadow-card)" }}
-          >
-            <div className="aspect-3/2 mb-3 bg-bg-section rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setEditingCapaId(c.id)}>
-              {c.capa ? (
-                <img
-                  src={c.capa}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#A67C6D]">
-                  Sem capa
+        {safeSazonais.map((c) => {
+          // Verifica se este card específico está fazendo upload
+          const isUploading = uploadingCapaId === c.id;
+
+          return (
+            <div
+              key={c.id}
+              // Se estiver subindo imagem, adiciona opacidade, fundo cinza e desativa eventos de ponteiro (clique)
+              className={`bg-white rounded-2xl p-4 transition-all ${
+                isUploading ? "bg-gray-100 opacity-60 pointer-events-none select-none" : ""
+              }`}
+              style={{ boxShadow: "var(--shadow-card)" }}
+            >
+              {/* CONTAINER DA IMAGEM */}
+              <div 
+                className={`aspect-3/2 mb-3 bg-bg-section rounded-lg overflow-hidden transition-opacity ${
+                  isUploading ? "cursor-not-allowed" : "cursor-pointer hover:opacity-80"
+                }`} 
+                onClick={() => !isUploading && setEditingCapaId(c.id)} // Bloqueia o clique se estiver subindo
+              >
+                {isUploading ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 gap-2 bg-gray-200 animate-pulse">
+                    <span className="text-xs font-semibold">Enviando imagem...</span>
+                  </div>
+                ) : c.capa ? (
+                  <img
+                    src={c.capa}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[#A67C6D]">
+                    Sem capa
+                  </div>
+                )}
+              </div>
+
+              {/* INFORMAÇÕES E BOTÕES */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-[#3D261D]">
+                    {c.titulo || "Sem título"}
+                  </h4>
+
+                  <p className="text-sm text-[#A67C6D]">
+                    {c.produtoIds.length} produtos
+                  </p>
                 </div>
-              )}
-            </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold text-[#3D261D]">
-                  {c.titulo || "Sem título"}
-                </h4>
+                <div className="flex gap-2">
+                  <button
+                    disabled={isUploading} // Desativa o botão nativamente
+                    className={`${isUploading ? "text-gray-400 cursor-not-allowed" : ""}`}
+                    onClick={() => {
+                      setEditSaz(c);
+                      setIsSazModalOpen(true);
+                    }}
+                  >
+                    <Edit2 size={15} />
+                  </button>
 
-                <p className="text-sm text-[#A67C6D]">
-                  {c.produtoIds.length} produtos
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setEditSaz(c);
-                    setIsSazModalOpen(true);
-                  }}
-                >
-                  <Edit2 size={15} />
-                </button>
-
-                <button
-                  onClick={() => handleDelete(c.id)}
-                  className="text-red-500"
-                >
-                  <Trash2 size={15} />
-                </button>
+                  <button
+                    disabled={isUploading} // Desativa o botão nativamente
+                    onClick={() => handleDelete(c.id)}
+                    className={`${isUploading ? "text-gray-400 cursor-not-allowed" : "text-red-500"}`}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* MODAL */}
@@ -364,7 +409,11 @@ export default function SpecialTab({
                     const file = e.target.files?.[0];
                     if (!file || !editingCapaId) return;
 
+                    // 1. Dispara o upload em segundo plano
                     handleUploadCapa(file, editingCapaId);
+
+                    // 2. Fecha o modal IMEDIATAMENTE
+                    setEditingCapaId(null);
                   }}
                 />
 

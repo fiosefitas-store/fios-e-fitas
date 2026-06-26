@@ -1,7 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { Produto } from "../../app/admin/dashboard/page";
+import { Produto } from "./Dashboard";
 import { productsService } from "@/app/api/services/productsService";
 
 interface Props {

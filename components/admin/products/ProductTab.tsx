@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, Edit2, Trash2, Star, Check } from "lucide-react";
 
-import { Produto } from "@/app/admin/dashboard/page";
+import { Produto } from "@/components/admin/Dashboard";
 import { CATEGORIES } from "@/data/categories";
 
 import ProductModal from "./ProductModal";
@@ -210,92 +210,108 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[#F2E8E1]">
-              <th className="text-left px-6 py-4">Produto</th>
-              <th className="text-left px-4 py-4">Categoria</th>
-              <th className="text-left px-4 py-4">Preço</th>
-              <th className="text-center px-4 py-4">Ativo</th>
-              <th className="text-center px-4 py-4">Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {produtos.map((produto, i) => {
-              // 🌟 Verifica se este produto específico está carregando em background
-              const isSavingBackground = (produto as any).salvando;
-
-              return (
-                <tr
-                  key={produto.id}
-                  className={`border-b border-bg-section transition-all duration-300 ${
-                    isSavingBackground 
-                      ? "opacity-50 bg-gray-100 animate-pulse pointer-events-none select-none filter grayscale" 
-                      : i % 2 === 0 ? "bg-white" : "bg-bg"
-                  }`}
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={produto.imagem}
-                        className="w-12 h-12 object-cover rounded-lg bg-gray-200"
-                      />
-                      <span className="text-sm font-medium text-[#3D261D]">
-                        {produto.nome || "Carregando..."}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-4">{produto.categoria}</td>
-
-                  <td className="px-4 py-4 font-semibold text-primary">
-                    R$ {produto.preco.toFixed(2)}
-                  </td>
-
-                  <td className="px-4 py-4">
-                    <div className="flex justify-center items-center">
-                      <button
-                        disabled={isSavingBackground}
-                        onClick={() => handleToggleAtivo(produto.id)}
-                        className={`relative w-11 h-6 rounded-full transition-colors ${
-                          produto.ativo ? "bg-green-500" : "bg-gray-300"
-                        }`}
-                      >
-                        <span
-                          className={`absolute top-1/2 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                            produto.ativo ? "translate-x-5" : "translate-x-0"
-                          } -translate-y-1/2`}
-                        />
-                      </button>
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <button 
-                        disabled={isSavingBackground} 
-                        onClick={() => handleEdit(produto)} 
-                        className="p-2 disabled:opacity-30"
-                      >
-                        <Edit2 size={15} />
-                      </button>
-
-                      <button 
-                        disabled={isSavingBackground} 
-                        onClick={() => triggerDeleteConfirmation(produto.id)} 
-                        className="p-2 text-red-500 disabled:opacity-30 hover:text-red-700 transition"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </td>
+      <div
+        className="bg-white rounded-lg overflow-hidden"
+        style={{ boxShadow: "var(--shadow-card)" }}
+      >
+        <div className="overflow-x-auto w-full">
+          <div className="overflow-x-auto w-full rounded-lg border border-[#F2E8E1]">
+            <table className="w-full min-w-3xl table-auto whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-[#F2E8E1] bg-gray-50 text-xs font-semibold uppercase tracking-wider text-[#A67C6D]">
+                  <th className="text-left px-6 py-4 w-[40%]">Produto</th>
+                  <th className="text-left px-6 py-4 w-[20%]">Categoria</th>
+                  <th className="text-left px-6 py-4 w-[15%]">Preço</th>
+                  <th className="text-center px-6 py-4 w-[10%]">Ativo</th>
+                  <th className="text-center px-6 py-4 w-[15%]">Ações</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+
+              <tbody className="divide-y divide-[#F2E8E1]">
+                {produtos.map((produto, i) => {
+                  const isSavingBackground = (produto as any).salvando;
+
+                  return (
+                    <tr
+                      key={produto.id}
+                      className={`transition-all duration-300 ${
+                        isSavingBackground 
+                          ? "opacity-50 bg-gray-100 animate-pulse pointer-events-none select-none filter grayscale" 
+                          : i % 2 === 0 ? "bg-white" : "bg-bg"
+                      }`}
+                    >
+                      {/* Produto */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={produto.imagem}
+                            className="w-12 h-12 object-cover rounded-lg bg-gray-200 shrink-0"
+                            alt={produto.nome}
+                          />
+                          <span className="text-sm font-medium text-[#3D261D] truncate max-w-50" title={produto.nome}>
+                            {produto.nome || "Carregando..."}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Categoria */}
+                      <td className="px-6 py-4 text-lg text-gray-600">
+                        <span className="inline-block text-[#3D261D] px-2.5 py-1 rounded-full text-sm font-medium">
+                          {produto.categoria}
+                        </span>
+                      </td>
+                      {/* Preço */}
+                      <td className="px-6 py-4 text-sm font-semibold text-primary">
+                        R$ {produto.preco.toFixed(2)}
+                      </td>
+
+                      {/* Ativo */}
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex justify-center items-center">
+                          <button
+                            disabled={isSavingBackground}
+                            onClick={() => handleToggleAtivo(produto.id)}
+                            className={`relative w-11 h-6 rounded-full transition-colors ${
+                              produto.ativo ? "bg-green-500" : "bg-gray-300"
+                            }`}
+                          >
+                            <span
+                              className={`absolute top-1/2 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                                produto.ativo ? "translate-x-5" : "translate-x-0"
+                              } -translate-y-1/2`}
+                            />
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* Ações */}
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button 
+                            disabled={isSavingBackground} 
+                            onClick={() => handleEdit(produto)} 
+                            className="p-2 disabled:opacity-30 hover:bg-gray-100 rounded-full transition text-gray-600"
+                          >
+                            <Edit2 size={15} />
+                          </button>
+
+                          <button 
+                            disabled={isSavingBackground} 
+                            onClick={() => triggerDeleteConfirmation(produto.id)} 
+                            className="p-2 text-red-500 disabled:opacity-30 hover:bg-red-50 hover:text-red-700 rounded-full transition"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* POP-UP DE CONFIRMAÇÃO DE DELEÇÃO */}
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">

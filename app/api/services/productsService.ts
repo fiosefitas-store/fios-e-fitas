@@ -1,4 +1,4 @@
-import { Produto } from "@/app/admin/dashboard/page";
+import { Produto } from "@/components/admin/Dashboard";
 
 const API_URL = "/api/admin/products";
 

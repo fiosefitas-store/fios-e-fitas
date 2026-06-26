@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Trash2, Ban } from "lucide-react";
-import { Produto } from "@/app/admin/dashboard/page";
+import { Produto } from "@/components/admin/Dashboard";
 import { COR_MAP } from "@/lib/colors";
 import { deleteImageFromStorage } from "@/lib/supabaseStorage";
 

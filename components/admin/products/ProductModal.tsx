@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, Dispatch, SetStateAction  } from "react";
 import { X, ChevronDown } from "lucide-react";
 
-import { Produto } from "@/app/admin/dashboard/page";
+import { Produto } from "@/components/admin/Dashboard";
 import { CATEGORIES } from "@/data/categories";
 import { COLOR_LIST, COR_MAP } from "@/lib/colors";
 
