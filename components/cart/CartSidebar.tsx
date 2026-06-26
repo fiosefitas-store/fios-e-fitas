@@ -46,6 +46,7 @@ export default function CartSidebar() {
     const url = gerarMensagemWhatsApp(items, total, observacoes);
     window.open(url, '_blank');
   };
+  
 
   return (
     <>

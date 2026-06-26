@@ -12,6 +12,7 @@ export default function Navbar() {
   const { state, dispatch } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,60 +33,72 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 flex flex-col">
 
       {/* Main Navbar */}
-      <nav className={cn(
-        "h-[68px] bg-white transition-all duration-300 px-4 md:px-8 flex items-center justify-between",
-        isScrolled ? "shadow-sm bg-white/90 backdrop-blur-md" : ""
-      )}>
-        {/* Mobile Menu Toggle */}
-        <button 
-          className="md:hidden p-2 text-[var(--color-text-heading)]"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {/* Logo */}
-        <Link href="/" className="font-logo text-[#F4845F] text-[1.75rem] leading-none absolute left-1/2 md:static md:left-auto transform -translate-x-1/2 md:translate-x-0">
-          Fios e Fitas
-        </Link>
-
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <button
-              key={link.href}
-              onClick={(e) => {
-                  if (openCategory !== link.slug) {
-                    e.preventDefault();
-                    setOpenCategory(link.slug);
-                  } else {
-                    setOpenCategory(null);
-                    router.push(link.href);
-                  }
-                }}
-              className="text-[#5C3D31] hover:text-[#F4845F] transition-colors font-medium"
-            >
-              {link.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Icons */}
-        <div className="flex items-center gap-2 md:gap-4 text-[#5C3D31]">
-          <button className="p-2 hover:text-[#F4845F] transition-colors hidden md:block">
-            <Search size={20} />
-          </button>
+      <nav
+        className={cn(
+          "h-20 bg-white transition-all duration-300 px-4 md:px-8 flex items-center",
+          isScrolled ? "shadow-sm bg-white/90 backdrop-blur-md" : ""
+        )}
+      >
+        <div className="max-w-6xl w-full mx-auto flex items-center justify-between">
+          {/* Mobile Menu Toggle */}
           <button 
-            className="p-2 hover:text-[#F4845F] transition-colors relative"
-            onClick={() => dispatch({ type: 'TOGGLE_CART' })}
+            className="md:hidden p-2 text-(--color-text-heading)"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <ShoppingBag size={20} />
-            {totalItems > 0 && (
-              <span className="absolute top-0 right-0 bg-[#F4845F] text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+
+          {/* Logo */}
+          <Link href="/" className="font-logo text-primary text-[1.75rem] leading-none absolute left-1/2 md:static md:left-auto transform -translate-x-1/2 md:translate-x-0 ">
+            Fios e Fitas
+          </Link>
+
+          {/* CATEGORIAS */}
+          <div className="hidden md:flex gap-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-[#5C3D31] hover:text-primary transition-colors font-medium"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Icons */}
+          <div className="flex items-center gap-2 md:gap-4 text-[#5C3D31]">
+            <div className="hidden md:flex items-center">
+              <div className="flex items-center w-72 h-11 rounded-2xl bg-[#F7F5F3] px-4 transition-all focus-within:ring-2 focus-within:ring-primary/20">
+                <input
+                  type="text"
+                  placeholder="O que está buscando?"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="flex-1 bg-transparent text-[#5C3D31] placeholder:text-[#8B6E63] outline-none text-[15px]"
+                />
+
+                <button
+                  className="text-primary hover:text-[#e56b3f] transition-colors"
+                >
+                  <Search size={22} strokeWidth={1.75} />
+                </button>
+              </div>
+            </div>
+
+
+            <button 
+              className="p-2 hover:text-primary transition-colors relative"
+              onClick={() => dispatch({ type: 'TOGGLE_CART' })}
+            >
+              <ShoppingBag size={20} />
+              {totalItems > 0 && (
+                <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -115,7 +128,7 @@ export default function Navbar() {
           <div className="max-w-6xl mx-auto px-6 py-6">
             <div className="grid grid-cols-12 gap-6 items-start">
               <div className="col-span-4">
-                <h3 className="text-[#F4845F] font-semibold text-lg mb-4">
+                <h3 className="text-primary font-semibold text-lg mb-4">
                   {navLinks.find((n) => n.slug === openCategory)?.label}
                 </h3>
 
@@ -125,7 +138,7 @@ export default function Navbar() {
                       <Link
                         href={`/categoria/${openCategory}/${encodeURIComponent(s.toLowerCase().replace(/\s+/g, '-'))}`}
                         onClick={() => setOpenCategory(null)}
-                        className="text-[#3D261D] text-lg font-medium hover:text-[#F4845F] transition-colors"
+                        className="text-[#3D261D] text-lg font-medium hover:text-primary transition-colors"
                       >
                         {s}
                       </Link>

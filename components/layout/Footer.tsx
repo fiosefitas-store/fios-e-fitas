@@ -15,7 +15,7 @@ export default function Footer() {
           </p>
         </div>
         
-        <div>
+        <div className="hidden md:block" >
           <h4 className="font-display text-lg mb-4 text-[#F7C5D0]">Categorias</h4>
           <ul className="space-y-2 text-[#A67C6D]">
             <li><Link href="/categoria/lacos" className="hover:text-white transition-colors">Laços</Link></li>
@@ -36,7 +36,7 @@ export default function Footer() {
       </div>
       
       <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-white/10 text-center text-[#A67C6D] text-sm">
-        © 2026 Fios e Fitas Boutique. Todos os direitos reservados.
+        © 2026 Fios e Fitas. Todos os direitos reservados.
       </div>
     </footer>
   );

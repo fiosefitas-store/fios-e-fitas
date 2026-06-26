@@ -3,10 +3,11 @@
 import { Instagram } from 'lucide-react';
 
 const images = [
-  '/images/produtos/laco-cetim-rosa.png',
-  '/images/produtos/bolsa-croche-natural.png',
-  '/images/produtos/kit-bebe-rosa.png',
-  '/images/produtos/amigurumi-insta.webp',
+  '/images/ig/ig1.png',
+  '/images/ig/ig2.png',
+  '/images/ig/ig3.png',
+  '/images/ig/ig4.png',
+
 ];
 
 export default function InstagramSection() {

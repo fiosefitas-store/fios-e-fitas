@@ -39,89 +39,80 @@ export default function ProdutosDestaque() {
   };
 
   return (
-    <section className="py-20 px-4 md:px-8 max-w-350 mx-auto">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
-        <div>
-          <h2 className="font-display text-4xl text-[#3D261D] mb-4 uppercase">Nossos Destaques</h2>
-          <p className="text-[#A67C6D] text-lg flex items-center gap-3">
-            <span>As peças mais amadas do nosso atelier.</span>
-            <Link href="/todos" className="text-[#F4845F] font-semibold hover:underline">Ver todos</Link>
-          </p>
+    <section className="mt-10 w-full bg-[#dd8649] py-15 pb-20 overflow-hidden">
+      <div className="max-w-425 mx-auto flex items-center gap-20 px-8">
+
+        {/* LADO ESQUERDO */}
+        <div className="hidden lg:flex flex-col justify-center shrink-0 w-82.5">
+          <img
+            src="/logo/destaques2.png"
+            alt="Nossos destaques"
+            className="w-full"
+          />
         </div>
 
-        <div className="flex gap-4 w-full md:w-auto">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-200 bg-white text-[#5C3D31] text-sm flex-1 md:flex-none"
-          >
-            {categorias.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+        {/* LADO DIREITO */}
+        <div className="flex-1 min-w-0">
 
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="px-4 py-2 rounded-full border border-gray-200 bg-white text-[#5C3D31] text-sm flex-1 md:flex-none"
-          >
-            <option value="Recentes">Mais Recentes</option>
-            <option value="Menor Preço">Menor Preço</option>
-            <option value="Maior Preço">Maior Preço</option>
-            <option value="Popularidade">Popularidade</option>
-          </select>
-        </div>
-      </div>
+          {/* HEADER */}
+          <div className="mb-6 md:mb-8">
+            <div className="flex flex-col md:flex-row md:items-center md:gap-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-[#2F2A28]">
+                <span className="md:hidden">Nossos destaques</span>
+                <span className="hidden md:inline">Escolha o seu favorito</span>
+              </h2>
 
-      {/* WRAPPER */}
-      <div className="relative">
-        {/* SETA ESQUERDA */}
-        <button
-          onClick={() =>
-            document.getElementById('products-scroll')?.scrollBy({
-              left: -400,
-              behavior: 'smooth',
-            })
-          }
-          className="hidden md:flex absolute -left-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 bg-white shadow-lg rounded-full items-center justify-center"
-        >
-          ‹
-        </button>
-
-        {/* SETA DIREITA */}
-        <button
-          onClick={() =>
-            document.getElementById('products-scroll')?.scrollBy({
-              left: 400,
-              behavior: 'smooth',
-            })
-          }
-          className="hidden md:flex absolute -right-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 bg-white shadow-lg rounded-full items-center justify-center"
-        >
-          ›
-        </button>
-
-        {/* LISTA (SEMPRE 1 LINHA NO PC) */}
-        <div
-          id="products-scroll"
-          className="
-            flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 hide-scrollbar
-            md:flex-nowrap md:overflow-x-auto md:gap-8
-          "
-        >
-          {filtered.slice(0, 8).map((produto) => (
-            <div
-              key={produto.id}
-              className="snap-start flex-none w-[75%] sm:w-[45%] md:w-70"
-            >
-              <ProductCard produto={produto as any} />
+              <Link
+                href="/todos"
+                className="mt-2 md:mt-4 underline text-right md:text-left text-[#ffc4a4] font-semibold"
+              >
+                Ver Todos
+              </Link>
             </div>
-          ))}
+          </div>
+
+          {/* CAROUSEL */}
+          <div className="relative">
+
+            {/* seta esquerda */}
+            <button
+              onClick={() => scroll("left")}
+              className="hidden md:flex absolute -left-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-white shadow-2xl"
+            >
+              ❮
+            </button>
+
+            {/* seta direita */}
+            <button
+              onClick={() => scroll("right")}
+              className="hidden md:flex absolute -right-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-white shadow-2xl"
+            >
+              ❯
+            </button>
+
+            <div
+              ref={scrollRef}
+              className="flex gap-4 overflow-x-auto scroll-smooth hide-scrollbar snap-x snap-mandatory"
+            >
+              {filtered.slice(0,8).map(produto=>(
+                <div
+                  key={produto.id}
+                  className="flex-none w-62.5 snap-proximity"
+                >
+                  <ProductCard produto={produto}/>
+                </div>
+              ))}
+            </div>
+
+          </div>
+
+          <p className="md:hidden mt-6 text-sm text-[#ffc4a4] text-center">
+            ← Deslize para ver mais →
+          </p>
+
         </div>
+
       </div>
-  </section>
+    </section>
   );
 }

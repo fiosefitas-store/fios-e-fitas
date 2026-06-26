@@ -1,142 +1,134 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { PencilRuler , Gem, ShieldCheck } from "lucide-react";
 
-const slides = [
-  {
-    badge: 'Feito com Amor',
-    title: 'Laços Artesanais para Momentos Especiais',
-    subtitle: 'Confeccionados à mão com materiais premium.',
-    image: '/images/produtos/laco-cetim-rosa.png',
-    link: '/categoria/lacos'
-  },
-  {
-    badge: 'Novidade',
-    title: 'Bolsas de Crochê Feitas à Mão',
-    subtitle: 'Charme e elegância em cada ponto.',
-    image: '/images/produtos/bolsa-croche-natural.png',
-    link: '/categoria/bolsas'
-  },
-  {
-    badge: 'Presente Ideal',
-    title: 'Kits Personalizados para Bebês',
-    subtitle: 'O presente perfeito para celebrar a vida.',
-    image: '/images/produtos/kit-bebe-rosa.png',
-    link: '/categoria/kits-presente'
-  }
+const banners = [
+  '/banner/bcopa.png',
+  '/banner/bkit.png',
+];
+
+const bannersMobile = [
+  '/banner/banner3.png',
+  '/banner/bannercopa2.png',
 ];
 
 export default function HeroBanner() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrent((prev) => (prev + 1) % banners.length);
     }, 5000);
+
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="relative h-[70vh] md:h-[85vh] mt-15 overflow-hidden bg-[#FDF0E9] ">
-      {slides.map((slide, index) => (
-        <div
-          key={index}
-          className={cn(
-            "absolute inset-0 flex flex-col-reverse md:flex-row items-center justify-between px-4 md:px-16 transition-opacity duration-1000",
-            index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-          )}
-        >
-          <div className="md:w-1/2 flex flex-col items-start gap-4 pb-12 md:pb-0 z-20">
-            <span className="bg-[#FAC9A8] text-[#D95F35] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-              {slide.badge}
-            </span>
-            <h1 className="font-display text-4xl md:text-6xl text-[#3D261D] leading-tight">
-              {slide.title}
-            </h1>
-            <p className="text-[#5C3D31] text-lg mb-4">
-              {slide.subtitle}
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href={slide.link} className="bg-primary text-white px-8 py-3 rounded-full font-medium hover:bg-[#D95F35] transition-colors shadow-lg hover:shadow-xl">
-                Ver Coleção
-              </Link>
-              <a href="https://wa.me/5583998660454" target="_blank" rel="noopener noreferrer" className="border-2 border-primary text-primary px-8 py-3 rounded-full font-medium hover:bg-primary hover:text-white transition-colors">
-                Fale Conosco
-              </a>
-            </div>
-          </div>
-          <div className="md:w-1/2 h-[40vh] md:h-full relative flex items-center justify-center p-8">
-            <div className="absolute w-[80%] h-[80%] bg-[#F7C5D0]/30 rounded-full blur-3xl z-0"></div>
-            <img src={slide.image} alt={slide.title} loading="lazy" className="relative z-10 max-h-full object-contain drop-shadow-2xl animate-in fade-in zoom-in duration-700" />
-          </div>
-        </div>
-      ))}
-      
-      {/* Navigation Dots */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
-        {slides.map((_, index) => (
-          <button
-            key={index}
+    <>
+      {/* Banner */}
+      <section className="relative mt-15 md:mt-8 overflow-hidden">
+        <div className="relative h-100 md:h-170">
+        {/* Desktop */}
+        {banners.map((banner, index) => (
+          <img
+            key={`desktop-${index}`}
+            src={banner}
+            alt={`Banner ${index + 1}`}
             className={cn(
-              "w-2.5 h-2.5 rounded-full transition-all duration-300",
-              index === currentSlide ? "bg-primary w-8" : "bg-primary/30 hover:bg-primary/50"
+              "hidden md:block absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+              current === index
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none"
             )}
-            onClick={() => setCurrentSlide(index)}
-            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
-      </div>
-      {/* Barra de Benefícios */}
-      <div className="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t border-[#EAD7CF] z-40">
-        <div className="grid grid-cols-1 md:grid-cols-3">
-          
-          <div className="flex items-center justify-center gap-3 py-4 px-6 border-b md:border-b-0 md:border-r border-[#EAD7CF]">
-            <div className="w-10 h-10 rounded-full bg-[#3D261D] flex items-center justify-center text-white">
-              🚚
-            </div>
-            <div>
-              <p className="text-[#E91E63] font-semibold leading-none">
-                Frete grátis
-              </p>
-              <span className="text-sm text-[#5C3D31]">
-                Acima de R$169
-              </span>
-            </div>
-          </div>
 
-          <div className="flex items-center justify-center gap-3 py-4 px-6 border-b md:border-b-0 md:border-r border-[#EAD7CF]">
-            <div className="w-10 h-10 rounded-full bg-[#3D261D] flex items-center justify-center text-white">
-              🎁
-            </div>
-            <div>
-              <p className="text-[#E91E63] font-semibold leading-none">
-                10% OFF
-              </p>
-              <span className="text-sm text-[#5C3D31]">
-                PRIMEIRACOMPRA
-              </span>
-            </div>
-          </div>
+        {/* Mobile */}
+        {bannersMobile.map((banner, index) => (
+          <img
+            key={`mobile-${index}`}
+            src={banner}
+            alt={`Banner Mobile ${index + 1}`}
+            className={cn(
+              "block md:hidden absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+              current === index
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none"
+            )}
+          />
+        ))}
 
-          <div className="flex items-center justify-center gap-3 py-4 px-6">
-            <div className="w-10 h-10 rounded-full bg-[#3D261D] flex items-center justify-center text-white">
-              💳
-            </div>
-            <div>
-              <p className="text-[#E91E63] font-semibold leading-none">
-                Parcelamento
-              </p>
-              <span className="text-sm text-[#5C3D31]">
-                Em até 4x sem juros
-              </span>
-            </div>
-          </div>
-
+        {/* Bolinhas */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrent(index)}
+              className={cn(
+                "h-2.5 rounded-full transition-all",
+                current === index
+                  ? "bg-white w-8"
+                  : "bg-white/50 w-2.5"
+              )}
+            />
+          ))}
         </div>
       </div>
 
-    </div>
+        {/* Barra de benefícios */}
+        <div className=" mt-4 hidden md:flex ">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3">
+
+            <div className="flex items-center justify-center gap-4 py-6 border-b md:border-b-0 md:border-r border-gray-100">
+              <div className="flex h-12 w-12 items-center justify-center rounded-ful">
+                <PencilRuler className="h-10 w-10 text-primary" strokeWidth={1.25} />
+              </div>
+
+              <div>
+                <p className="font-semibold text-[#3D261D]">
+                  PERSONALIZADO
+                </p>
+                <span className="text-sm text-[#5C3D31]">
+                  Feito especialmente para você.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 py-6 border-b md:border-b-0 md:border-r border-gray-100">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full">
+                <Gem className="h-10 w-10 text-primary" strokeWidth={1.25} />
+              </div>
+
+              <div>
+                <p className="font-semibold text-[#3D261D]">
+                  ALTA QUALIDADE
+                </p>
+                <span className="text-sm text-[#5C3D31]">
+                  Materiais premium e acabamento impecável.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 py-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full">
+                <ShieldCheck className="h-10 w-10 text-primary" strokeWidth={1.25} />
+              </div>
+
+              <div>
+                <p className="font-semibold text-[#3D261D]">
+                  COMPRA SEGURA
+                </p>
+                <span className="text-sm text-[#5C3D31]">
+                  Atendimento confiável e pagamento protegido.
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

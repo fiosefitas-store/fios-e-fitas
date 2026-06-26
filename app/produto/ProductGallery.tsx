@@ -12,8 +12,8 @@ export default function ProductGallery({
   setMainImage,
 }: Props) {
   return (
-    <div className="space-y-4">
-      <div className="aspect-square rounded-2xl overflow-hidden bg-section">
+    <div className="md:sticky top-24 h-fit">
+      <div className="aspect-square overflow-hidden bg-section">
         <img
           src={mainImage || produto.imagem}
           alt={produto.nome}

@@ -5,6 +5,7 @@
     "descricao": "Laço artesanal confeccionado em cetim premium de alta qualidade. Ideal para complementar looks infantis e femininos com delicadeza e charme.",
     "preco": 35.9,
     "categoria": "Laços",
+    "subcategoria": "",
     "categoriasSazonais": [],
     "imagem": "/images/produtos/laco-cetim-rosa.png",
     "imagens": ["/images/produtos/laco-cetim-rosa.png"],
@@ -31,6 +32,7 @@
     "descricao": "Laço artesanal em cetim laranja vibrante, perfeito para quem ama cor e personalidade. Feito com acabamento impecável e forro interno.",
     "preco": 35.9,
     "categoria": "Laços",
+    "subcategoria": "Tiaras",
     "categoriasSazonais": [],
     "imagem": "/images/produtos/laco-cetim-laranja.png",
     "imagens": ["/images/produtos/laco-cetim-laranja.png"],
@@ -59,6 +61,7 @@
     "descricao": "Bolsa artesanal confeccionada em linha 100% algodão na cor natural. Design versátil que combina com looks casuais e de praia.",
     "preco": 120,
     "categoria": "Bolsas",
+    "subcategoria": "",
     "categoriasSazonais": [],
     "imagem": "/images/produtos/bolsa-croche-natural.png",
     "imagens": ["/images/produtos/bolsa-croche-natural.png"],
@@ -83,6 +86,7 @@
     "descricao": "Kit completo para bebês com tiara de laço, sapatinho e manta em crochê. O presente perfeito para chás de bebê e maternidades.",
     "preco": 89.9,
     "categoria": "Linha Bebê",
+    "subcategoria": "",
     "categoriasSazonais": ["recem-nascido"],
     "imagem": "/images/produtos/kit-bebe-rosa.png",
     "imagens": ["/images/produtos/kit-bebe-rosa.png"],
@@ -102,5 +106,37 @@
     "personalizado": true,
     "avaliacoes": 5,
     "vendas": 203
+  },
+  {
+    "id": "vestido-floral-rosa-p005",
+    "nome": "Vestido Infantil Floral Rosa",
+    "subcategoria": "Tiaras",
+    "descricao": "Vestido infantil confeccionado em algodão leve com estampa floral delicada. Possui modelagem confortável e acabamento de alta qualidade, ideal para passeios, festas e ocasiões especiais.",
+    "preco": 79.9,
+    "categoria": "Vestidos",
+    "categoriasSazonais": [],
+    "imagem": "/images/produtos/vestido-floral-rosa.png",
+    "imagens": [
+      "/images/produtos/vestido-floral-rosa.png"
+    ],
+    "cores": [
+      { "nome": "Rosa", "imagem": "/images/cores/rosa.png" },
+      { "nome": "Branco", "imagem": "/images/cores/branco.png" },
+      { "nome": "Lilás", "imagem": "/images/cores/lilas.png" }
+    ],
+    "tamanhos": [
+      { "nome": "P", "cm": "50" },
+      { "nome": "M", "cm": "55" },
+      { "nome": "G", "cm": "60" },
+      { "nome": "GG", "cm": "65" }
+    ],
+    "materiais": [
+      "Algodão"
+    ],
+    "destaque": true,
+    "ativo": true,
+    "personalizado": false,
+    "avaliacoes": 5,
+    "vendas": 156
   }
 ]

@@ -18,7 +18,7 @@ export default function CarrinhoPage() {
     <div className="min-h-screen pt-26 bg-bg">
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="flex items-center gap-2 text-[#A67C6D] hover:text-[#F4845F] transition-colors text-sm">
+          <Link href="/" className="flex items-center gap-2 text-[#A67C6D] hover:text-primary transition-colors text-sm">
             <ArrowLeft size={16} /> Continuar comprando
           </Link>
         </div>
@@ -42,7 +42,7 @@ export default function CarrinhoPage() {
             <p className="text-[#A67C6D] mb-8">Explore nossa loja e encontre peças artesanais únicas!</p>
             <Link
               href="/"
-              className="inline-flex items-center px-8 py-4 rounded-full bg-[#F4845F] text-white font-bold hover:bg-[#D95F35] transition-colors"
+              className="inline-flex items-center px-8 py-4 rounded-full bg-primary text-white font-bold hover:bg-[#D95F35] transition-colors"
               style={{ boxShadow: 'var(--shadow-primary)' }}
             >
               Ver produtos
@@ -78,7 +78,7 @@ export default function CarrinhoPage() {
                       <div className="flex items-center gap-3 border border-[#E4D0C5] rounded-full px-2 py-1">
                         <button
                           onClick={() => dispatch({ type: 'UPDATE_QUANTIDADE', payload: { cartItemId: item.cartItemId, quantidade: item.quantidade - 1 } })}
-                          className="p-1 hover:text-[#F4845F] transition-colors text-[#5C3D31]"
+                          className="p-1 hover:text-primary transition-colors text-[#5C3D31]"
                           disabled={item.quantidade <= 1}
                           aria-label="Diminuir"
                         >
@@ -87,14 +87,14 @@ export default function CarrinhoPage() {
                         <span className="text-sm font-bold text-[#3D261D] min-w-[20px] text-center">{item.quantidade}</span>
                         <button
                           onClick={() => dispatch({ type: 'UPDATE_QUANTIDADE', payload: { cartItemId: item.cartItemId, quantidade: item.quantidade + 1 } })}
-                          className="p-1 hover:text-[#F4845F] transition-colors text-[#5C3D31]"
+                          className="p-1 hover:text-primary transition-colors text-[#5C3D31]"
                           aria-label="Aumentar"
                         >
                           <Plus size={14} />
                         </button>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="font-bold text-[#F4845F]">R$ {item.subtotal.toFixed(2)}</span>
+                        <span className="font-bold text-primary">R$ {item.subtotal.toFixed(2)}</span>
                         <button
                           onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.cartItemId })}
                           className="p-2 hover:text-red-500 text-[#C9A898] transition-colors"
@@ -118,7 +118,7 @@ export default function CarrinhoPage() {
                   value={observacoes}
                   onChange={(e) => dispatch({ type: 'SET_OBSERVACOES', payload: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-3 border border-[#E4D0C5] rounded-xl text-[#3D261D] placeholder-[#C9A898] bg-[#FDFAF8] focus:outline-none focus:border-[#F4845F] focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)] text-sm resize-none"
+                  className="w-full px-4 py-3 border border-[#E4D0C5] rounded-xl text-[#3D261D] placeholder-[#C9A898] bg-bg focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_rgba(244,132,95,0.15)] text-sm resize-none"
                 />
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function CarrinhoPage() {
                       <span className="text-[#5C3D31] line-clamp-1 flex-1 mr-4">
                         {item.nome} x{item.quantidade}
                       </span>
-                      <span className="text-[#3D261D] font-medium flex-shrink-0">
+                      <span className="text-[#3D261D] font-medium shrink-0">
                         R$ {item.subtotal.toFixed(2)}
                       </span>
                     </div>
