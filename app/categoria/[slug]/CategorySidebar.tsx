@@ -22,7 +22,7 @@ export default function CategorySidebar({
   hideCategories = false,
 }: CategorySidebarProps) {
 
-  if (!subcategories.length) return null;
+  // if (!subcategories.length) return null;
 
   const options = [
     {
@@ -45,8 +45,8 @@ export default function CategorySidebar({
   return (
     <aside className="hidden lg:block w-72 shrink-0">
 
-      {!hideCategories && (
-        <div className="rounded-2xl border border-[#ECECEC] bg-white p-6 shadow-sm">
+      {!hideCategories && subcategories.length > 0 && (
+        <div className="rounded-xl border border-[#ECECEC] bg-white/80 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-[#3D261D] mb-5">
             Categoria
           </h2>

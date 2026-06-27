@@ -10,12 +10,10 @@ import HomeTab from "@/components/admin/HomeTab";
 import FavoriteTab from "@/components/admin/FavoriteTab";
 import DashboardLayout from "./DashboardLayout";
 
-
-
-import produtosBase from "@/data/produtos.json";
+// 🚀 IMPORTAÇÃO DO SERVICE DO BANCO DE DADOS (Substituindo o JSON antigo)
+import { productsService } from "@/app/api/services/productsService";
 
 export type Tab = "home" | "produtos" | "sazonais" | "destaques";
-
 
 export interface Produto {
   id: string;
@@ -25,14 +23,12 @@ export interface Produto {
   categoria: string;
   subcategoria?: string;
   imagem: string;
-
   cores: {
     nome: string;
     imagem?: string | null;
     file?: File;
     preview?: string;
   }[];
-
   tamanhos: {
     nome: string;
     cm: string;
@@ -62,76 +58,46 @@ export default function AdminDashboardPage() {
   const [sazonais, setSazonais] = useState<Colecao[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  
 
+  // Carrega todos os dados sincronizados em tempo real direto do banco/API
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (typeof window === "undefined") return;
 
     const auth = localStorage.getItem("adminAuth");
-
     if (auth !== "true") {
       router.push("/admin");
       return;
     }
 
-    const saved = localStorage.getItem("admin_produtos");
-
-    if (saved) {
+    const carregarDadosDoBanco = async () => {
       try {
-        setProdutos(JSON.parse(saved));
-      } catch (error) {
-        console.error("Erro ao carregar produtos:", error);
-        setProdutos(produtosBase as Produto[]);
-      }
-    } else {
-      setProdutos(produtosBase as Produto[]);
-    }
+        // 1. Busca os produtos direto da API vinculada ao banco de dados
+        const dadosProdutos = await productsService.getAll();
+        setProdutos(dadosProdutos);
 
-    const savedSaz = localStorage.getItem("admin_sazonais");
-
-    if (savedSaz) {
-      try {
-        const parsed = JSON.parse(savedSaz);
-
-        if (Array.isArray(parsed)) {
-          setSazonais(parsed as Colecao[]);
-        } else {
-          console.warn("Invalid admin_sazonais in localStorage, clearing it");
-          localStorage.removeItem("admin_sazonais");
-          setSazonais([]);
+        // 2. Busca as coleções direto do seu endpoint route.ts
+        const resSazonais = await fetch("/api/admin/sazonal");
+        if (resSazonais.ok) {
+          const dadosSazonais = await resSazonais.json();
+          setSazonais(Array.isArray(dadosSazonais) ? dadosSazonais : []);
         }
       } catch (error) {
-        console.error("Erro ao carregar sazonais:", error);
+        console.error("Erro ao sincronizar dados do banco no painel:", error);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    setLoading(false);
+    carregarDadosDoBanco();
   }, [router]);
 
+  // Mantido a assinatura das funções para não quebrar as heranças e os contratos das Abas (Tabs)
   const saveProdutos = (updated: Produto[]) => {
     setProdutos(updated);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("admin_produtos", JSON.stringify(updated));
-      } catch (error) {
-        console.error("Erro ao salvar produtos no localStorage:", error);
-        // localStorage cheio ou indisponível - continuar mesmo assim
-      }
-    }
   };
 
   const saveSazonais = (updated: Colecao[]) => {
     setSazonais(updated);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("admin_sazonais", JSON.stringify(updated));
-      } catch (error) {
-        console.error("Erro ao salvar sazonais no localStorage:", error);
-        // localStorage cheio ou indisponível - continuar mesmo assim
-      }
-    }
   };
 
   const handleLogout = () => {
@@ -140,6 +106,16 @@ export default function AdminDashboardPage() {
     }
     router.push("/admin");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="animate-pulse text-[#3D261D] font-semibold text-base">
+          Sincronizando painel com o banco de dados...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">

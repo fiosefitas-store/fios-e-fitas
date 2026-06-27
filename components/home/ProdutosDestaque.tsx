@@ -1,17 +1,37 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/produto/ProductCard';
-import produtosData from '@/data/produtos.json';
+import { productsService } from '@/app/api/services/productsService';
+import { Produto } from '@/components/admin/Dashboard';
 
 export default function ProdutosDestaque() {
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Todos');
   const [sort, setSort] = useState('Recentes');
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const destaques = produtosData.filter(p => p.destaque);
+  // Busca os produtos direto da API ao carregar o componente
+  useEffect(() => {
+    const fetchProdutos = async () => {
+      try {
+        const data = await productsService.getAll();
+        setProdutos(data);
+      } catch (error) {
+        console.error("Erro ao carregar produtos em destaque:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProdutos();
+  }, []);
+
+  // Filtra apenas por produtos que são DESTAQUE e estão ATIVOS
+  const destaques = produtos.filter(p => p.destaque && p.ativo);
 
   let filtered =
     filter === 'Todos'
@@ -33,7 +53,7 @@ export default function ProdutosDestaque() {
   const scroll = (dir: 'left' | 'right') => {
     if (!scrollRef.current) return;
     scrollRef.current.scrollBy({
-      left: dir === 'left' ? -350 : 350,
+      left: dir === 'left' ? -400 : 400,
       behavior: 'smooth',
     });
   };
@@ -90,25 +110,40 @@ export default function ProdutosDestaque() {
               ❯
             </button>
 
-            <div
-              ref={scrollRef}
-              className="flex gap-4 overflow-x-auto scroll-smooth hide-scrollbar snap-x snap-mandatory"
-            >
-              {filtered.slice(0,8).map(produto=>(
-                <div
-                  key={produto.id}
-                  className="flex-none w-62.5 snap-proximity"
-                >
-                  <ProductCard produto={produto}/>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              // Esqueleto/Loading básico enquanto os dados caem do Supabase
+              <div className="flex gap-4 overflow-x-auto JSON animate-pulse">
+                {[1, 2, 3, 4].map((n) => (
+                  <div key={n} className="flex-none w-62.5 h-80 bg-orange-200/50 rounded-2xl" />
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="text-center py-10 text-white font-medium">
+                Nenhum produto em destaque no momento.
+              </div>
+            ) : (
+              <div
+                ref={scrollRef}
+                className="flex gap-4 overflow-x-auto scroll-smooth hide-scrollbar snap-x snap-mandatory"
+              >
+                {filtered.slice(0, 8).map((produto) => (
+                  <div
+                    key={produto.id}
+                    className="flex-none w-62.5 snap-proximity"
+                  >
+                    <ProductCard produto={produto} />
+                  </div>
+                ))}
+              </div>
+            )}
 
           </div>
 
-          <p className="md:hidden mt-6 text-sm text-[#ffc4a4] text-center">
-            ← Deslize para ver mais →
-          </p>
+          {!loading && filtered.length > 0 && (
+            <p className="md:hidden mt-6 text-sm text-[#ffc4a4] text-center">
+              ← Deslize para ver mais →
+            </p>
+          )}
 
         </div>
 

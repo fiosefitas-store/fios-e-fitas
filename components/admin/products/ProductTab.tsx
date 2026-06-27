@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Star, Check } from "lucide-react";
+import { Plus, Edit2, Trash2, Check } from "lucide-react";
 
 import { Produto } from "@/components/admin/Dashboard";
 import { CATEGORIES } from "@/data/categories";
@@ -16,9 +16,7 @@ interface Props {
   saveProdutos: (produtos: Produto[]) => void;
 }
 
-
 export default function ProductTab({ produtos, saveProdutos }: Props) {
-  const [storageMode, setStorageMode] = useState<"api" | "local">("api");
   const [editProduto, setEditProduto] = useState<Produto | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingColorImage, setEditingColorImage] = useState<string | null>(null);
@@ -26,7 +24,7 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productIdToDelete, setProductIdToDelete] = useState<string | null>(null);
 
-   const handleNew = () => {
+  const handleNew = () => {
     setEditProduto({
       id: `produto-${Date.now()}`,
       nome: "",
@@ -49,16 +47,14 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
     setIsModalOpen(true);
   };
 
-  
-
   const handleSave = async (produto: Produto) => {
     try {
       const exists = produtos.some((p) => p.id === produto.id);
+      
       // Criamos uma cópia temporária do produto marcada como 'salvando'
       const produtoTemporario = { 
         ...produto, 
         salvando: true,
-        // Se for um produto novo, usamos a primeira imagem blob como preview temporário na tabela
         imagem: produto.imagem?.startsWith("blob:") 
           ? produto.imagem 
           : (produto.cores.find(c => c.imagem)?.imagem || produto.imagem)
@@ -70,59 +66,52 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
 
       saveProdutos(listaOtimista);
 
-      // O modal já fechou visualmente por causa do onClose() no ProductModal,
-      // então o usuário já verá a linha cinza na tabela imediatamente aqui.
+      // 1. Executa o upload das cores em segundo plano
+      const novasCores = await Promise.all(
+        produto.cores.map(async (cor) => {
+          if (!cor.file) return cor;
 
-      if (storageMode === "api") {
-        // 2. Executa o upload das cores em segundo plano
-        const novasCores = await Promise.all(
-          produto.cores.map(async (cor) => {
-            if (!cor.file) return cor;
+          const url = await uploadImageToSupabase(cor.file, produto.id, cor.nome);
+          return {
+            ...cor,
+            imagem: url || "",
+            preview: undefined,
+            file: undefined,
+          };
+        })
+      );
 
-            const url = await uploadImageToSupabase(cor.file, produto.id, cor.nome);
-            return {
-              ...cor,
-              imagem: url || "",
-              preview: undefined,
-              file: undefined,
-            };
-          })
-        );
+      let savedProduto = { ...produto, cores: novasCores };
 
-        let savedProduto = { ...produto, cores: novasCores };
-
-        // Ajusta a imagem principal definitiva
-        const corPrincipal = novasCores.find(c => c.imagem && produto.imagem === c.preview);
-        if (corPrincipal && corPrincipal.imagem) {
-          savedProduto.imagem = corPrincipal.imagem;
-        } else if (savedProduto.imagem?.startsWith("blob:")) {
-          const correspondente = novasCores.find(c => c.imagem);
-          if (correspondente && correspondente.imagem) {
-            savedProduto.imagem = correspondente.imagem;
-          }
+      // Ajusta a imagem principal definitiva
+      const corPrincipal = novasCores.find(c => c.imagem && produto.imagem === c.preview);
+      if (corPrincipal && corPrincipal.imagem) {
+        savedProduto.imagem = corPrincipal.imagem;
+      } else if (savedProduto.imagem?.startsWith("blob:")) {
+        const correspondente = novasCores.find(c => c.imagem);
+        if (correspondente && correspondente.imagem) {
+          savedProduto.imagem = correspondente.imagem;
         }
-
-        // 3. Salva no banco de dados
-        savedProduto = exists
-          ? await productsService.update(savedProduto)
-          : await productsService.create(savedProduto);
-
-        // 🔥 4. TRANQUILIZA A UI: Substitui o temporário pelo produto real vindo do banco
-        // (aqui ele perde o estado cinza e os botões voltam a funcionar)
-        const listaFinal = produtos.map((p) => 
-          p.id === savedProduto.id ? savedProduto : p
-        );
-        
-        // Se for um produto totalmente novo que acabou de receber o ID final do banco:
-        const listaFinalComNovo = exists 
-          ? listaFinal 
-          : produtos.filter(p => p.id !== produto.id).concat(savedProduto);
-
-        saveProdutos(listaFinalComNovo);
       }
+
+      // 2. Salva diretamente no banco de dados através do service
+      savedProduto = exists
+        ? await productsService.update(savedProduto)
+        : await productsService.create(savedProduto);
+
+      // 3. Substitui o temporário pelo produto real vindo do banco
+      const listaFinal = produtos.map((p) => 
+        p.id === savedProduto.id ? savedProduto : p
+      );
+      
+      const listaFinalComNovo = exists 
+        ? listaFinal 
+        : produtos.filter(p => p.id !== produto.id).concat(savedProduto);
+
+      saveProdutos(listaFinalComNovo);
+
     } catch (err) {
       console.error("Erro ao salvar produto em segundo plano:", err);
-      // Em caso de erro crítico, remove o temporário ou restaura o estado original
       saveProdutos(produtos.filter((p) => p.id !== produto.id));
       alert("Erro ao salvar o produto no servidor.");
     }
@@ -134,20 +123,18 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
 
     const updated = { ...produto, ativo: !produto.ativo };
 
-    // 🔥 1. ATUALIZA UI NA HORA (IMEDIATO)
-    const newList = produtos.map((p) =>
-      p.id === id ? updated : p
-    );
-
+    // Atualização otimista na UI
+    const newList = produtos.map((p) => (p.id === id ? updated : p));
     saveProdutos(newList);
 
     try {
-      // 🔥 2. depois sincroniza com API
-      if (storageMode === "api") {
-        await productsService.update(updated);
-      }
+      // Sincroniza diretamente na API
+      await productsService.update(updated);
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao alterar o status do produto:", err);
+      // Rollback se der errado
+      saveProdutos(produtos);
+      alert("Não foi possível atualizar o status do produto.");
     }
   };
 
@@ -157,32 +144,25 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
     setIsModalOpen(true);
   };
 
-
-  // Abre o pop-up de confirmação
   const triggerDeleteConfirmation = (id: string) => {
     setProductIdToDelete(id);
     setIsDeleteModalOpen(true);
   };
 
-  // Executa a deleção real após o usuário confirmar no pop-up
   const handleConfirmDelete = async () => {
     if (!productIdToDelete) return;
 
     const id = productIdToDelete;
     
-    // Fecha o pop-up imediatamente
     setIsDeleteModalOpen(false);
     setProductIdToDelete(null);
 
-    // Fallback seguro da UI
     const listaOriginal = [...produtos];
     const produtosFiltrados = produtos.filter((p) => p.id !== id);
     saveProdutos(produtosFiltrados);
 
     try {
-      if (storageMode === "api") {
-        await productsService.remove(id);
-      }
+      await productsService.remove(id);
     } catch (err) {
       console.error("Erro ao deletar produto na API:", err);
       saveProdutos(listaOriginal);
@@ -192,14 +172,8 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
 
   return (
     <>
+      {/* HEADER ACTIONS */}
       <div className="flex justify-end mb-6">
-        <button 
-        className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white"
-          style={{ background: "#61924c" }}
-          onClick={() => setStorageMode((m) => (m === "api" ? "local" : "api"))}>
-          Modo: {storageMode}
-        </button>
-
         <button
           onClick={handleNew}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white"
@@ -210,6 +184,7 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
         </button>
       </div>
 
+      {/* PROD TABLE CARD */}
       <div
         className="bg-white rounded-lg overflow-hidden"
         style={{ boxShadow: "var(--shadow-card)" }}
@@ -218,7 +193,7 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
           <div className="overflow-x-auto w-full rounded-lg border border-[#F2E8E1]">
             <table className="w-full min-w-3xl table-auto whitespace-nowrap">
               <thead>
-                <tr className="border-b border-[#F2E8E1] bg-gray-50 text-xs font-semibold uppercase tracking-wider text-[#A67C6D]">
+                <tr className="border-b border-[#F2E8E1] bg-gray-50 text-sm font-semibold uppercase tracking-wider text-[#A67C6D]">
                   <th className="text-left px-6 py-4 w-[40%]">Produto</th>
                   <th className="text-left px-6 py-4 w-[20%]">Categoria</th>
                   <th className="text-left px-6 py-4 w-[15%]">Preço</th>
@@ -260,6 +235,7 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
                           {produto.categoria}
                         </span>
                       </td>
+                      
                       {/* Preço */}
                       <td className="px-6 py-4 text-sm font-semibold text-primary">
                         R$ {produto.preco.toFixed(2)}

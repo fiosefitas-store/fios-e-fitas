@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, Menu, X } from 'lucide-react';
+import { ShoppingBag, Menu, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { cn } from '@/lib/utils';
 import { CATEGORIES } from '@/data/categories';
 import { useRouter } from 'next/navigation';
+import Search from '@/components/home/Search'; 
 
 export default function Navbar() {
   const { state, dispatch } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,7 +27,12 @@ export default function Navbar() {
   const router = useRouter();
   const [openCategory, setOpenCategory] = useState<string | null>(null);
 
-  const navLinks = CATEGORIES.map((c) => ({ label: c.label, href: `/categoria/${c.slug}`, slug: c.slug, subcategories: c.subcategories }));
+  const navLinks = CATEGORIES.map((c) => ({ 
+    label: c.label, 
+    href: `/categoria/${c.slug}`, 
+    slug: c.slug, 
+    subcategories: c.subcategories 
+  }));
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex flex-col">
@@ -39,17 +44,18 @@ export default function Navbar() {
           isScrolled ? "shadow-sm bg-white/90 backdrop-blur-md" : ""
         )}
       >
-        <div className="max-w-6xl w-full mx-auto flex items-center justify-between">
+        <div className="max-w-6xl w-full mx-auto flex items-center justify-between gap-4">
+          
           {/* Mobile Menu Toggle */}
           <button 
-            className="md:hidden p-2 text-(--color-text-heading)"
+            className="md:hidden p-2 text-[#3D261D]"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
           {/* Logo */}
-          <Link href="/" className="font-logo text-primary text-[1.75rem] leading-none absolute left-1/2 md:static md:left-auto transform -translate-x-1/2 md:translate-x-0 ">
+          <Link href="/" className="font-logo text-primary text-[1.75rem] leading-none absolute left-1/2 md:static md:left-auto transform -translate-x-1/2 md:translate-x-0">
             Fios e Fitas
           </Link>
 
@@ -66,27 +72,15 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Icons */}
-          <div className="flex items-center gap-2 md:gap-4 text-[#5C3D31]">
-            <div className="hidden md:flex items-center">
-              <div className="flex items-center w-72 h-11 rounded-2xl bg-[#F7F5F3] px-4 transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                <input
-                  type="text"
-                  placeholder="O que está buscando?"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="flex-1 bg-transparent text-[#5C3D31] placeholder:text-[#8B6E63] outline-none text-[15px]"
-                />
-
-                <button
-                  className="text-primary hover:text-[#e56b3f] transition-colors"
-                >
-                  <Search size={22} strokeWidth={1.75} />
-                </button>
-              </div>
+          {/* Icons & Search */}
+          <div className="flex items-center gap-2 md:gap-4 text-[#5C3D31] flex-1 justify-end md:flex-initial">
+            
+            {/* 🔍 NOVO COMPONENTE DE BUSCA INSERIDO NO DESKTOP */}
+            <div className="hidden md:block">
+              <Search />
             </div>
 
-
+            {/* Sacola de Compras */}
             <button 
               className="p-2 hover:text-primary transition-colors relative"
               onClick={() => dispatch({ type: 'TOGGLE_CART' })}
@@ -98,6 +92,7 @@ export default function Navbar() {
                 </span>
               )}
             </button>
+
           </div>
         </div>
       </nav>
@@ -105,6 +100,12 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-100 p-4 flex flex-col gap-4 max-h-[calc(100vh-104px)] overflow-y-auto">
+          
+          {/* 🔍 BUSCA DINÂMICA COMPATÍVEL COM O MENU MOBILE */}
+          <div className="w-full pt-2 pb-1">
+            <Search />
+          </div>
+
           {navLinks.map((link) => (
             <Link 
               key={link.href} 
@@ -115,13 +116,9 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="flex items-center gap-4 py-4">
-            <button className="flex items-center gap-2 text-[#5C3D31]">
-              <Search size={20} /> Buscar
-            </button>
-          </div>
         </div>
       )}
+
       {/* Submenu for desktop */}
       {openCategory && (
         <div className="hidden md:block bg-white border-t border-b shadow-sm">

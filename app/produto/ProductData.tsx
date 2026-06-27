@@ -39,8 +39,13 @@ export default function ProductData({ produto, setMainImage }: Props) {
   useEffect(() => {
     if (!produto || !setMainImage) return;
 
-    const img =
-      produto.corImagens?.[selectedCor] || produto.imagem;
+    // 1. Procura a cor selecionada dentro do array de cores do produto
+    const corSelecionadaObjeto = produto.cores?.find(
+      (c: any) => c.nome === selectedCor
+    );
+
+    // 2. Se a cor tiver uma imagem, usa ela. Senão, mantém a imagem principal do produto
+    const img = corSelecionadaObjeto?.imagem || produto.imagem;
 
     setMainImage(img);
   }, [selectedCor, produto, setMainImage]);
@@ -53,6 +58,11 @@ export default function ProductData({ produto, setMainImage }: Props) {
       return;
     }
 
+    // Encontra o objeto da cor para pegar a imagem certa na hora de mandar pro carrinho
+    const corSelecionadaObjeto = produto.cores?.find(
+      (c: any) => c.nome === selectedCor
+    );
+
     dispatch({
       type: 'ADD_ITEM',
       payload: {
@@ -64,8 +74,8 @@ export default function ProductData({ produto, setMainImage }: Props) {
         tamanho: selectedTamanho,
         material: selectedMaterial,
         personalizacao,
-        imagem:
-          produto.corImagens?.[selectedCor] || produto.imagem,
+        // 🔥 Altere esta linha abaixo:
+        imagem: corSelecionadaObjeto?.imagem || produto.imagem,
       },
     });
 
@@ -129,7 +139,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
                 <div
                   className={`w-11 h-11 rounded-full border-2 transition-all ${
                     selectedCor === cor.nome
-                      ? 'border-[#F4845F] scale-110'
+                      ? 'border-primary scale-110'
                       : 'border-[#E4D0C5]'
                   }`}
                   style={{
@@ -162,7 +172,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
                 }}
                 className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
                   selectedTamanho === tam.nome
-                    ? 'bg-[#F4845F] text-white border-[#F4845F]'
+                    ? 'bg-primary text-white border-primary'
                     : 'border-[#E4D0C5] text-[#5C3D31]'
                 }`}
               >
@@ -181,15 +191,17 @@ export default function ProductData({ produto, setMainImage }: Props) {
 
     </div>
 
-      {/* PERSONALIZAÇÃO */}
-      <div>
-        <textarea
-          placeholder="Personalização (opcional)"
-          value={personalizacao}
-          onChange={(e) => setPersonalizacao(e.target.value)}
-          className="w-full border border-[#E4D0C5] rounded-xl p-4 text-sm focus:border-[#F4845F] outline-none"
-        />
-      </div>
+      {/* PERSONALIZAÇÃO (Só aparece se o produto for personalizável) */}
+      {(produto.personalizavel || produto.personalizado) && (
+          <div>
+            <textarea
+              placeholder="Personalização (opcional)"
+              value={personalizacao}
+              onChange={(e) => setPersonalizacao(e.target.value)}
+              className="w-full border border-[#E4D0C5] rounded-xl p-4 text-sm focus:border-primary outline-none"
+            />
+          </div>
+      )}
 
       {/* ERRO */}
       {erroSelecao && (
@@ -250,11 +262,12 @@ export default function ProductData({ produto, setMainImage }: Props) {
         </div>
 
         {/* CAIXA DE DESTAQUE FINAL */}
-        <div className="mt-6 rounded-2xl bg-[#FDFAF8] border border-[#F2E6E2] p-5">
+        <div className="mt-6 rounded-2xl bg-bg border border-[#F2E6E2] p-5">
           <ul className="text-sm text-[#5C3D31] space-y-2">
             <li>✔ Produção artesanal</li>
             <li>✔ Feito sob encomenda</li>
-            <li>✔ Personalizável</li>
+            {/* Só exibe o item abaixo se o produto realmente for personalizável */}
+            {(produto.personalizavel || produto.personalizado) && <li>✔ Personalizável</li>}
             <li>✔ Alta qualidade de acabamento</li>
           </ul>
         </div>
