@@ -18,7 +18,7 @@ export default function Home() {
         <ProdutosDestaque />
       </div>
 
-      {/* No mobile vem depois, no desktop volta para a posição original */}
+      {/* No mobile vem depois */}
       <div className="order-3 md:order-2">
         <CategoriasDestaque />
       </div>
