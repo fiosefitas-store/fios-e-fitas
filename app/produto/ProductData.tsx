@@ -24,6 +24,20 @@ export default function ProductData({ produto, setMainImage }: Props) {
 
   const corMap = COR_MAP;
 
+  const getCorStyle = (cor: Cor) => {
+    if (cor.cores?.length) {
+      if (cor.cores.length === 1) {
+        return { backgroundColor: cor.cores[0] };
+      }
+
+      return {
+        background: `linear-gradient(90deg, ${cor.cores[0]} 0%, ${cor.cores[1]} 100%)`,
+      };
+    }
+
+    return { backgroundColor: corMap[cor.nome] || '#E4D0C5' };
+  };
+
   const tamanhoSelecionado = produto?.tamanhos?.find(
     (t: Tamanho) => t.nome === selectedTamanho
   );
@@ -142,9 +156,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
                       ? 'border-primary scale-110'
                       : 'border-[#E4D0C5]'
                   }`}
-                  style={{
-                    backgroundColor: corMap[cor.nome] || '#E4D0C5',
-                  }}
+                  style={getCorStyle(cor)}
                 />
                 <span className="text-[11px] text-[#7D5547]">
                   {cor.nome}

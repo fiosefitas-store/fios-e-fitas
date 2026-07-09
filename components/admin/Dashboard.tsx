@@ -28,6 +28,8 @@ export interface Produto {
     imagem?: string | null;
     file?: File;
     preview?: string;
+    cores?: string[];
+    custom?: boolean;
   }[];
   tamanhos: {
     nome: string;

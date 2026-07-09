@@ -1,5 +1,10 @@
 {
   "/api/admin/products/route": "app/api/admin/products/route.js",
   "/api/admin/sazonal/route": "app/api/admin/sazonal/route.js",
-  "/admin/dashboard/page": "app/admin/dashboard/page.js"
+  "/api/admin/products/[id]/route": "app/api/admin/products/[id]/route.js",
+  "/page": "app/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/todos/page": "app/todos/page.js",
+  "/produto/[id]/page": "app/produto/[id]/page.js"
 }

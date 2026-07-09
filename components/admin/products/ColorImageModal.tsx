@@ -46,6 +46,13 @@ export default function ColorImageModal({
 
   const hasImage = !!corAtual?.imagem;
   const corExisteNoProduto = !!corAtual;
+  const previewStyle = corAtual?.custom
+    ? corAtual.cores?.length && corAtual.cores.length > 1
+      ? {
+          background: `linear-gradient(90deg, ${corAtual.cores[0]} 0%, ${corAtual.cores[1]} 100%)`,
+        }
+      : { backgroundColor: corAtual.cores?.[0] || "#F4845F" }
+    : { backgroundColor: COR_MAP[editingColorImage] || "#E4D0C5" };
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +140,7 @@ export default function ColorImageModal({
         <div className="flex justify-center mb-6">
           <div
             className="w-24 h-24 rounded-full shadow-md"
-            style={{ backgroundColor: COR_MAP[editingColorImage] }}
+            style={previewStyle}
           />
         </div>
 

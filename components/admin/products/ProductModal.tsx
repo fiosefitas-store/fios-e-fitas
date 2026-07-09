@@ -30,11 +30,24 @@ export default function ProductModal({
   const [precoInput, setPrecoInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [materialInput, setMaterialInput] = useState("");
+  const [customColorName, setCustomColorName] = useState("");
+  const [customColorA, setCustomColorA] = useState("#F4845F");
+  const [customColorB, setCustomColorB] = useState("#FFFFFF");
+  const [showSecondColor, setShowSecondColor] = useState(false);
 
   const TAMANHOS_PADRAO = ["PP", "P", "M", "G", "Padrão"];
 
   const categoriaAtual = CATEGORIES.find(
     (c) => c.slug === editProduto?.categoria
+  );
+
+  const colorNames = Array.from(
+    new Set([
+      ...COLOR_LIST,
+      ...editProduto.cores
+        .filter((cor) => cor.custom)
+        .map((cor) => cor.nome),
+    ])
   );
 
   const autoResize = (el: HTMLTextAreaElement) => {
@@ -54,6 +67,37 @@ export default function ProductModal({
       );
     }
   }, [editProduto]);
+
+  const handleAddCustomColor = () => {
+    const nome = customColorName.trim();
+    if (!nome) return;
+
+    const cores = [customColorA, ...(showSecondColor && customColorB ? [customColorB] : [])];
+    const novoCor = {
+      nome,
+      cores,
+      custom: true,
+    };
+
+    const existingIndex = editProduto.cores.findIndex((c) => c.nome === nome);
+    const updatedCores =
+      existingIndex >= 0
+        ? editProduto.cores.map((c, index) => (index === existingIndex ? novoCor : c))
+        : [...editProduto.cores, novoCor];
+
+    setEditProduto({ ...editProduto, cores: updatedCores });
+    setCustomColorName("");
+    setCustomColorA("#F4845F");
+    setCustomColorB("#FFFFFF");
+    setShowSecondColor(false);
+  };
+
+  const handleRemoveCustomColor = (nome: string) => {
+    setEditProduto({
+      ...editProduto,
+      cores: editProduto.cores.filter((c) => c.nome !== nome),
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
@@ -160,33 +204,149 @@ export default function ProductModal({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {COLOR_LIST.map((cor) => {
+            {colorNames.map((cor) => {
               const selected = editProduto.cores.some((c) => c.nome === cor);
+              const corData = editProduto.cores.find((c) => c.nome === cor);
+              const swatchStyle = corData?.custom
+                ? corData.cores?.length && corData.cores.length > 1
+                  ? {
+                      background: `linear-gradient(90deg, ${corData.cores[0]} 0%, ${corData.cores[1]} 100%)`,
+                    }
+                  : {
+                      backgroundColor: corData.cores?.[0] || "#F4845F",
+                    }
+                : { backgroundColor: COR_MAP[cor] || "#E4D0C5" };
 
               return (
                 <button
-                    key={cor}
-                    onClick={() => {
-                      onOpenColorImage(cor);
-                    }}
-                    className={`relative w-10 h-10 rounded-full overflow-hidden transition-all ${
-                        selected
-                        ? "ring-2 ring-offset-1 ring-offset-white ring-primary scale-105"
-                        : "hover:scale-105"
-                    }`}
-                    style={{ backgroundColor: COR_MAP[cor] }}
-                    >
-                    {/* MINIATURA DA IMAGEM */}
-                    {editProduto.cores.find((c) => c.nome === cor)?.imagem && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <img
-                                src={ editProduto.cores.find((c) => c.nome === cor)?.imagem ?? undefined }
-                            />
-                        </div>
-                    )}
+                  key={cor}
+                  onClick={() => {
+                    onOpenColorImage(cor);
+                  }}
+                  className={`relative w-10 h-10 rounded-full overflow-hidden transition-all ${
+                    selected
+                      ? "ring-2 ring-offset-1 ring-offset-white ring-primary scale-105"
+                      : "hover:scale-105"
+                  }`}
+                  style={swatchStyle}
+                >
+                  {corData?.imagem && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <img
+                        src={corData.imagem ?? undefined}
+                        className="h-full w-full object-cover"
+                        alt={cor}
+                      />
+                    </div>
+                  )}
                 </button>
               );
             })}
+          </div>
+
+          <div className="pt-4 border-t">
+            <label className="text-sm font-medium text-gray-700 mb-3 block">
+              Cores personalizadas
+            </label>
+            <p className="text-xs text-gray-500 mb-3">
+              Crie uma opção com um nome e uma ou duas cores.
+            </p>
+
+            {editProduto.cores.filter((c) => c.custom).length > 0 && (
+              <div className="space-y-2 mb-3">
+                {editProduto.cores
+                  .filter((c) => c.custom)
+                  .map((cor) => (
+                    <div
+                      key={cor.nome}
+                      className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 overflow-hidden rounded-full border border-gray-200">
+                          {cor.cores && cor.cores.length > 1 ? (
+                            <div
+                              className="h-full w-full"
+                              style={{
+                                background: `linear-gradient(90deg, ${cor.cores[0]} 0%, ${cor.cores[1]} 100%)`,
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="h-full w-full"
+                              style={{ backgroundColor: cor.cores?.[0] || "#F4845F" }}
+                            />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">{cor.nome}</p>
+                          <p className="text-xs text-gray-500">
+                            {cor.cores?.join(" + ") || "Cor personalizada"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCustomColor(cor.nome)}
+                        className="text-sm text-red-500 hover:text-red-700"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/60 p-3">
+              <input
+                type="text"
+                value={customColorName}
+                onChange={(e) => setCustomColorName(e.target.value)}
+                placeholder="Nome da opção personalizada"
+                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-primary"
+              />
+
+              <div className="mt-3 flex items-center gap-3">
+                <label className="flex-1 text-xs font-medium text-gray-600">
+                  Cor 1
+                  <input
+                    type="color"
+                    value={customColorA}
+                    onChange={(e) => setCustomColorA(e.target.value)}
+                    className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                  />
+                </label>
+
+                {showSecondColor && (
+                  <label className="flex-1 text-xs font-medium text-gray-600">
+                    Cor 2
+                    <input
+                      type="color"
+                      value={customColorB}
+                      onChange={(e) => setCustomColorB(e.target.value)}
+                      className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSecondColor((value) => !value)}
+                  className="rounded-full border border-orange-200 px-3 py-2 text-sm font-medium text-primary"
+                >
+                  {showSecondColor ? "Remover segunda cor" : "Adicionar segunda cor"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddCustomColor}
+                  className="rounded-full bg-primary px-3 py-2 text-sm font-medium text-white"
+                >
+                  Adicionar opção
+                </button>
+              </div>
+            </div>
           </div>
 
           {editProduto.cores.length > 0 && editProduto.cores.some((c) => c.imagem) && (

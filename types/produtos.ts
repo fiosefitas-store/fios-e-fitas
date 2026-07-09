@@ -8,6 +8,8 @@ export type Tamanho = {
 export type Cor = {
   nome: string;
   imagem?: string;
+  cores?: string[];
+  custom?: boolean;
 };
 
 export type Produto = {

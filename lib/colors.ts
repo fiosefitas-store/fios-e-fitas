@@ -2,6 +2,7 @@ export const COR_MAP: Record<string, string> = {
   Branco: '#efefef',
 
   Rosa: '#F2A7BB',
+  'Rosa Pink': '#F472B6',
   Vermelho: '#EF4444',
   Bordô: '#9F1239',
   Vinho: '#7F1D1D',
