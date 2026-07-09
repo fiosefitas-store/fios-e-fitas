@@ -21,7 +21,9 @@ export interface Produto {
   descricao: string;
   preco: number;
   categoria: string;
+  categorias?: string[];
   subcategoria?: string;
+  subcategorias?: string[];
   imagem: string;
   cores: {
     nome: string;
@@ -41,6 +43,8 @@ export interface Produto {
   destaque: boolean;
   ativo: boolean;
   personalizado: boolean;
+  emPromocao: boolean;
+  precoPromocional?: number | null;
   vendas: number;
   colecaoEspecial?: string | null;
 }

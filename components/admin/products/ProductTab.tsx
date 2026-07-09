@@ -40,6 +40,8 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
       destaque: false,
       ativo: true,
       personalizado: true,
+      emPromocao: false,
+      precoPromocional: null,
       vendas: 0,
     });
 
@@ -237,8 +239,22 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
                       </td>
                       
                       {/* Preço */}
-                      <td className="px-6 py-4 text-sm font-semibold text-primary">
-                        R$ {produto.preco.toFixed(2)}
+                      <td className="px-6 py-4 text-sm">
+                        {produto.emPromocao && produto.precoPromocional ? (
+                          <div className="flex flex-col">
+                            <span className="text-xs text-gray-400 line-through">
+                              R$ {produto.preco.toFixed(2)}
+                            </span>
+
+                            <span className="font-bold text-primary">
+                              R$ {produto.precoPromocional.toFixed(2)}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="font-semibold text-primary">
+                            R$ {produto.preco.toFixed(2)}
+                          </span>
+                        )}
                       </td>
 
                       {/* Ativo */}

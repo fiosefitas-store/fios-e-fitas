@@ -18,4 +18,6 @@ export type Produto = {
   preco: number;
   tamanhos: Tamanho[];
   cores: Cor[];
+  emPromocao?: boolean;
+  precoPromocional?: number | null;
 };

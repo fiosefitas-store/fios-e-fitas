@@ -23,6 +23,8 @@ model Product {
   preco          Float
   categoria      String
   subcategoria   String?
+  categorias     Json?
+  subcategorias  Json?
   imagem         String
   imagens        Json?
   cores          Json?
@@ -31,6 +33,8 @@ model Product {
   destaque       Boolean  @default(false)
   ativo          Boolean  @default(true)
   personalizado  Boolean  @default(false)
+  emPromocao     Boolean  @default(false)
+  precoPromocional Float?
   avaliacoes     Int?     @default(0)
   vendas         Int?     @default(0)
   createdAt      DateTime @default(now())

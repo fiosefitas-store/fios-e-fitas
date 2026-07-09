@@ -28,18 +28,45 @@ export default function ProductModal({
 }: Props) {
   const descricaoRef = useRef<HTMLTextAreaElement>(null);
   const [precoInput, setPrecoInput] = useState("");
+  const [precoPromocionalInput, setPrecoPromocionalInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [materialInput, setMaterialInput] = useState("");
   const [customColorName, setCustomColorName] = useState("");
   const [customColorA, setCustomColorA] = useState("#F4845F");
   const [customColorB, setCustomColorB] = useState("#FFFFFF");
   const [showSecondColor, setShowSecondColor] = useState(false);
+  const [showCustomColorForm, setShowCustomColorForm] = useState(false);
+  const [showPromotionFields, setShowPromotionFields] = useState(Boolean(editProduto.emPromocao));
+  const [requiredTouched, setRequiredTouched] = useState<Record<string, boolean>>({});
 
   const TAMANHOS_PADRAO = ["PP", "P", "M", "G", "Padrão"];
 
-  const categoriaAtual = CATEGORIES.find(
-    (c) => c.slug === editProduto?.categoria
-  );
+  const categoriasSelecionadas = editProduto.categorias?.length
+    ? editProduto.categorias
+    : editProduto.categoria
+      ? [editProduto.categoria]
+      : [];
+
+  const subcategoriasSelecionadas = editProduto.subcategorias?.length
+    ? editProduto.subcategorias
+    : editProduto.subcategoria
+      ? [editProduto.subcategoria]
+      : [];
+
+  const subcategoriasDisponiveis = CATEGORIES.filter((categoria) =>
+    categoriasSelecionadas.includes(categoria.slug)
+  ).flatMap((categoria) => categoria.subcategories);
+
+  const requiredFields = [
+    { key: "nome", label: "Nome do produto", value: editProduto.nome?.trim() },
+    { key: "descricao", label: "Descrição", value: editProduto.descricao?.trim() },
+    { key: "preco", label: "Preço", value: editProduto.preco > 0 ? String(editProduto.preco) : "" },
+    { key: "categoria", label: "Categoria", value: categoriasSelecionadas.length ? categoriasSelecionadas.join(",") : "" },
+    { key: "cor", label: "Cor", value: editProduto.cores?.length ? "ok" : "" },
+    { key: "imagem", label: "Imagem principal", value: editProduto.imagem ? "ok" : "" },
+    { key: "tamanho", label: "Tamanho", value: editProduto.tamanhos?.length ? "ok" : "" },
+    { key: "vendas", label: "Quantidade de vendas", value: editProduto.vendas >= 0 ? String(editProduto.vendas) : "" },
+  ];
 
   const colorNames = Array.from(
     new Set([
@@ -57,6 +84,7 @@ export default function ProductModal({
 
   useEffect(() => {
     if (editProduto) {
+      setShowPromotionFields(Boolean(editProduto.emPromocao));
       setPrecoInput(
         editProduto.preco
           ? editProduto.preco.toLocaleString("pt-BR", {
@@ -65,8 +93,20 @@ export default function ProductModal({
             })
           : ""
       );
+      setPrecoPromocionalInput(
+        editProduto.precoPromocional
+          ? editProduto.precoPromocional.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })
+          : ""
+      );
     }
   }, [editProduto]);
+
+  const handleFieldFocus = (field: string) => {
+    setRequiredTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleAddCustomColor = () => {
     const nome = customColorName.trim();
@@ -112,94 +152,207 @@ export default function ProductModal({
         </div>
 
         <div className="space-y-4">
-          <input
-            className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
-            value={editProduto.nome}
-            onChange={(e) =>
-              setEditProduto({ ...editProduto, nome: e.target.value })
-            }
-            placeholder="Nome do produto"
-          />
+          <div>
+            <label className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700">
+              Nome do produto
+              <span className="text-red-500">*</span>
+            </label>
+            <input
+              className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
+              value={editProduto.nome}
+              onFocus={() => handleFieldFocus("nome")}
+              onChange={(e) =>
+                setEditProduto({ ...editProduto, nome: e.target.value })
+              }
+              placeholder="Nome do produto"
+            />
+            {!editProduto.nome?.trim() && requiredTouched.nome && (
+              <p className="mt-1 text-xs text-red-500">Preencha este campo.</p>
+            )}
+          </div>
 
-          <textarea
-            ref={descricaoRef}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition resize-none overflow-hidden"
-            value={editProduto.descricao}
-            onChange={(e) =>
-              setEditProduto({ ...editProduto, descricao: e.target.value })
-            }
-            onInput={(e) => autoResize(e.currentTarget)}
-            placeholder="Descrição do produto: Ex: Feito especialmente para festas, cores podem ser personalizadas."
-          />
+          <div>
+            <label className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700">
+              Descrição
+              <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              ref={descricaoRef}
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition resize-none overflow-hidden"
+              value={editProduto.descricao}
+              onFocus={() => handleFieldFocus("descricao")}
+              onChange={(e) =>
+                setEditProduto({ ...editProduto, descricao: e.target.value })
+              }
+              onInput={(e) => autoResize(e.currentTarget)}
+              placeholder="Descrição do produto: Ex: Feito especialmente para festas, cores podem ser personalizadas."
+            />
+            {!editProduto.descricao?.trim() && requiredTouched.descricao && (
+              <p className="mt-1 text-xs text-red-500">Preencha este campo.</p>
+            )}
+          </div>
 
-          <input
-            className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
-            value={precoInput}
-            onChange={(e) => {
-              const numeric = e.target.value.replace(/\D/g, "");
-              const numberValue = Number(numeric) / 100;
+          <div>
+            <label className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700">
+              Preço
+              <span className="text-red-500">*</span>
+            </label>
+            <input
+              className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
+              value={precoInput}
+              onFocus={() => handleFieldFocus("preco")}
+              onChange={(e) => {
+                const numeric = e.target.value.replace(/\D/g, "");
+                const numberValue = Number(numeric) / 100;
 
-              setPrecoInput(
-                numberValue
-                  ? numberValue.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })
-                  : ""
-              );
+                setPrecoInput(
+                  numberValue
+                    ? numberValue.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })
+                    : ""
+                );
 
-              setEditProduto({
-                ...editProduto,
-                preco: numberValue || 0,
-              });
-            }}
-            placeholder="R$ 0,00"
-          />
+                setEditProduto({
+                  ...editProduto,
+                  preco: numberValue || 0,
+                });
+              }}
+              placeholder="R$ 0,00"
+            />
+            {!editProduto.preco && requiredTouched.preco && (
+              <p className="mt-1 text-xs text-red-500">Preencha este campo.</p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-orange-100 bg-orange-50/70 p-4">
+            <label className="flex items-center gap-3 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={editProduto.emPromocao || false}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setEditProduto({
+                    ...editProduto,
+                    emPromocao: checked,
+                  });
+                  setShowPromotionFields(checked);
+                }}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              Marcar como produto em promoção
+            </label>
+
+            {showPromotionFields && (
+              <div className="mt-3">
+                <label className="mb-1 flex items-center gap-1 text-sm text-gray-600">
+                  Preço promocional
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
+                  value={precoPromocionalInput}
+                  onChange={(e) => {
+                    const numeric = e.target.value.replace(/\D/g, "");
+                    const numberValue = Number(numeric) / 100;
+
+                    setPrecoPromocionalInput(
+                      numberValue
+                        ? numberValue.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })
+                        : ""
+                    );
+
+                    setEditProduto({
+                      ...editProduto,
+                      precoPromocional: numberValue || null,
+                    });
+                  }}
+                  placeholder="R$ 0,00"
+                />
+              </div>
+            )}
+          </div>
 
           {/* CATEGORIA E SUBCATEGORIA */}
-          <div className="flex gap-4">
-            <div className="relative w-full">
-              <select
-                value={editProduto.categoria}
-                onChange={(e) =>
-                  setEditProduto({
-                    ...editProduto,
-                    categoria: e.target.value,
-                    subcategoria: "",
-                  })
-                }
-                className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
+          <div className="space-y-3">
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+              <label className="mb-2 flex items-center gap-1 text-sm font-medium text-gray-700">
+                Categorias
+                <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((categoria) => {
+                  const selected = categoriasSelecionadas.includes(categoria.slug);
+                  return (
+                    <button
+                      key={categoria.slug}
+                      type="button"
+                      onClick={() => {
+                        const next = selected
+                          ? categoriasSelecionadas.filter((item) => item !== categoria.slug)
+                          : [...categoriasSelecionadas, categoria.slug];
 
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                        setEditProduto({
+                          ...editProduto,
+                          categoria: next[0] || "",
+                          categorias: next,
+                        });
+                        handleFieldFocus("categoria");
+                      }}
+                      className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                        selected
+                          ? "bg-primary text-white"
+                          : "bg-white text-gray-700 ring-1 ring-gray-200"
+                      }`}
+                    >
+                      {categoria.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {!categoriasSelecionadas.length && requiredTouched.categoria && (
+                <p className="mt-2 text-xs text-red-500">Selecione pelo menos uma categoria.</p>
+              )}
             </div>
 
-            <div className="relative w-full">
-              <select
-                value={editProduto.subcategoria || ""}
-                onChange={(e) =>
-                  setEditProduto({
-                    ...editProduto,
-                    subcategoria: e.target.value,
-                  })
-                }
-                className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
-              >
-                <option value="">Selecione</option>
-                {categoriaAtual?.subcategories.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+              <label className="mb-2 flex items-center gap-1 text-sm font-medium text-gray-700">
+                Subcategorias
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {subcategoriasDisponiveis.map((subcategoria) => {
+                  const selected = subcategoriasSelecionadas.includes(subcategoria);
+                  return (
+                    <button
+                      key={subcategoria}
+                      type="button"
+                      onClick={() => {
+                        const next = selected
+                          ? subcategoriasSelecionadas.filter((item) => item !== subcategoria)
+                          : [...subcategoriasSelecionadas, subcategoria];
 
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                        setEditProduto({
+                          ...editProduto,
+                          subcategoria: next[0] || "",
+                          subcategorias: next,
+                        });
+                        handleFieldFocus("categoria");
+                      }}
+                      className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                        selected
+                          ? "bg-[#5C3D31] text-white"
+                          : "bg-white text-gray-700 ring-1 ring-gray-200"
+                      }`}
+                    >
+                      {subcategoria}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -221,6 +374,7 @@ export default function ProductModal({
                 <button
                   key={cor}
                   onClick={() => {
+                    handleFieldFocus("cor");
                     onOpenColorImage(cor);
                   }}
                   className={`relative w-10 h-10 rounded-full overflow-hidden transition-all ${
@@ -245,15 +399,77 @@ export default function ProductModal({
           </div>
 
           <div className="pt-4 border-t">
-            <label className="text-sm font-medium text-gray-700 mb-3 block">
-              Cores personalizadas
-            </label>
-            <p className="text-xs text-gray-500 mb-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">
+                Cores personalizadas
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowCustomColorForm((value) => !value)}
+                className="text-sm font-medium text-primary"
+              >
+                {showCustomColorForm ? "Ocultar" : "Adicionar"}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
               Crie uma opção com um nome e uma ou duas cores.
             </p>
 
+            {showCustomColorForm && (
+              <div className="mt-3 rounded-2xl border border-dashed border-orange-200 bg-orange-50/60 p-3">
+                <input
+                  type="text"
+                  value={customColorName}
+                  onChange={(e) => setCustomColorName(e.target.value)}
+                  placeholder="Nome da opção personalizada"
+                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-primary"
+                />
+
+                <div className="mt-3 flex items-center gap-3">
+                  <label className="flex-1 text-xs font-medium text-gray-600">
+                    Cor 1
+                    <input
+                      type="color"
+                      value={customColorA}
+                      onChange={(e) => setCustomColorA(e.target.value)}
+                      className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                    />
+                  </label>
+
+                  {showSecondColor && (
+                    <label className="flex-1 text-xs font-medium text-gray-600">
+                      Cor 2
+                      <input
+                        type="color"
+                        value={customColorB}
+                        onChange={(e) => setCustomColorB(e.target.value)}
+                        className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                      />
+                    </label>
+                  )}
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowSecondColor((value) => !value)}
+                    className="rounded-full border border-orange-200 px-3 py-2 text-sm font-medium text-primary"
+                  >
+                    {showSecondColor ? "Remover segunda cor" : "Adicionar segunda cor"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddCustomColor}
+                    className="rounded-full bg-primary px-3 py-2 text-sm font-medium text-white"
+                  >
+                    Adicionar opção
+                  </button>
+                </div>
+              </div>
+            )}
+
             {editProduto.cores.filter((c) => c.custom).length > 0 && (
-              <div className="space-y-2 mb-3">
+              <div className="mt-3 space-y-2">
                 {editProduto.cores
                   .filter((c) => c.custom)
                   .map((cor) => (
@@ -296,57 +512,6 @@ export default function ProductModal({
                   ))}
               </div>
             )}
-
-            <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/60 p-3">
-              <input
-                type="text"
-                value={customColorName}
-                onChange={(e) => setCustomColorName(e.target.value)}
-                placeholder="Nome da opção personalizada"
-                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-primary"
-              />
-
-              <div className="mt-3 flex items-center gap-3">
-                <label className="flex-1 text-xs font-medium text-gray-600">
-                  Cor 1
-                  <input
-                    type="color"
-                    value={customColorA}
-                    onChange={(e) => setCustomColorA(e.target.value)}
-                    className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
-                  />
-                </label>
-
-                {showSecondColor && (
-                  <label className="flex-1 text-xs font-medium text-gray-600">
-                    Cor 2
-                    <input
-                      type="color"
-                      value={customColorB}
-                      onChange={(e) => setCustomColorB(e.target.value)}
-                      className="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
-                    />
-                  </label>
-                )}
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowSecondColor((value) => !value)}
-                  className="rounded-full border border-orange-200 px-3 py-2 text-sm font-medium text-primary"
-                >
-                  {showSecondColor ? "Remover segunda cor" : "Adicionar segunda cor"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddCustomColor}
-                  className="rounded-full bg-primary px-3 py-2 text-sm font-medium text-white"
-                >
-                  Adicionar opção
-                </button>
-              </div>
-            </div>
           </div>
 
           {editProduto.cores.length > 0 && editProduto.cores.some((c) => c.imagem) && (
@@ -359,12 +524,13 @@ export default function ProductModal({
                   cor.imagem ? (
                     <button
                       key={`${cor.nome}-main`}
-                      onClick={() =>
+                      onClick={() => {
+                        handleFieldFocus("imagem");
                         setEditProduto({
                           ...editProduto,
                           imagem: cor.imagem ?? "",
-                        })
-                      }
+                        });
+                      }}
                       className={`relative rounded-lg overflow-hidden border-2 transition-all ${
                         editProduto.imagem === cor.imagem
                           ? "border-primary scale-105 ring-1 ring-offset-1 ring-primary"
@@ -470,10 +636,8 @@ export default function ProductModal({
                       let novos = [...editProduto.tamanhos];
 
                       if (selected) {
-                        // remove
                         novos = novos.filter((t) => t.nome !== tamanho);
                       } else {
-                        // adiciona
                         novos.push({ nome: tamanho, cm: "" });
                       }
 
@@ -481,6 +645,7 @@ export default function ProductModal({
                         ...editProduto,
                         tamanhos: novos,
                       });
+                      handleFieldFocus("tamanho");
                     }}
                     className={`px-4 py-2 rounded-full border-gray-300 border text-sm transition ${
                       selected
@@ -503,6 +668,7 @@ export default function ProductModal({
                     type="text"
                     placeholder="10 x 10"
                     value={t.cm}
+                    onFocus={() => handleFieldFocus("tamanho")}
                     onChange={(e) => {
                       setEditProduto({
                         ...editProduto,
@@ -518,6 +684,9 @@ export default function ProductModal({
                 </div>
               ))}
             </div>
+            {!editProduto.tamanhos.length && requiredTouched.tamanho && (
+              <p className="mt-2 text-xs text-red-500">Selecione pelo menos um tamanho.</p>
+            )}
           </div>
 
           {/* REVIEWS/AVALIAÇÕES */}
@@ -532,6 +701,7 @@ export default function ProductModal({
                   type="number"
                   min="0"
                   value={editProduto.vendas === 0 ? "" : editProduto.vendas}
+                  onFocus={() => handleFieldFocus("vendas")}
                   onChange={(e) =>
                     setEditProduto({
                       ...editProduto,
@@ -541,6 +711,9 @@ export default function ProductModal({
                   placeholder="Ex: 100"
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-orange-100 outline-none transition"
                 />
+                {!editProduto.vendas && requiredTouched.vendas && (
+                  <p className="mt-1 text-xs text-red-500">Preencha este campo.</p>
+                )}
               </div>
 
                 <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -575,6 +748,13 @@ export default function ProductModal({
           <button
             onClick={async () => {
               setIsSaving(true);
+
+              const missing = requiredFields.filter((field) => !field.value);
+              if (missing.length) {
+                setRequiredTouched(Object.fromEntries(requiredFields.map((field) => [field.key, true])));
+                setIsSaving(false);
+                return;
+              }
 
               onClose();
 

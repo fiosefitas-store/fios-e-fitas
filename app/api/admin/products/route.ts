@@ -29,8 +29,10 @@ export async function POST(request: NextRequest) {
         nome: data.nome,
         descricao: data.descricao,
         preco: data.preco,
-        categoria: data.categoria,
-        subcategoria: data.subcategoria,
+        categoria: data.categoria || (data.categorias?.[0] || ''),
+        subcategoria: data.subcategoria || (data.subcategorias?.[0] || null),
+        categorias: data.categorias ?? (data.categoria ? [data.categoria] : []),
+        subcategorias: data.subcategorias ?? (data.subcategoria ? [data.subcategoria] : []),
         imagem: data.imagem,
         imagens: data.cores,
         cores: data.cores,
@@ -39,9 +41,11 @@ export async function POST(request: NextRequest) {
         destaque: data.destaque ?? false,
         ativo: data.ativo ?? true,
         personalizado: data.personalizado ?? false,
+        emPromocao: data.emPromocao ?? false,
+        precoPromocional: data.precoPromocional ?? null,
         avaliacoes: data.reviewsCount ?? 0,
         vendas: data.vendas ?? 0,
-      },
+      } as any,
     });
 
     return NextResponse.json(produto, { status: 201 });
@@ -80,8 +84,10 @@ export async function PUT(request: NextRequest) {
         nome: data.nome,
         descricao: data.descricao,
         preco: data.preco,
-        categoria: data.categoria,
-        subcategoria: data.subcategoria,
+        categoria: data.categoria || (data.categorias?.[0] || ''),
+        subcategoria: data.subcategoria || (data.subcategorias?.[0] || null),
+        categorias: data.categorias ?? (data.categoria ? [data.categoria] : []),
+        subcategorias: data.subcategorias ?? (data.subcategoria ? [data.subcategoria] : []),
         imagem: data.imagem,
         imagens: data.cores,
         cores: data.cores,
@@ -90,9 +96,11 @@ export async function PUT(request: NextRequest) {
         destaque: data.destaque,
         ativo: data.ativo,
         personalizado: data.personalizado,
+        emPromocao: data.emPromocao,
+        precoPromocional: data.precoPromocional ?? null,
         avaliacoes: data.reviewsCount ?? data.avaliacoes,
         vendas: data.vendas ?? 0,
-      },
+      } as any,
     });
 
     return NextResponse.json(produto);

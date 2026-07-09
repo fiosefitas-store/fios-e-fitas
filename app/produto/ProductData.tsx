@@ -23,6 +23,9 @@ export default function ProductData({ produto, setMainImage }: Props) {
   const [erroSelecao, setErroSelecao] = useState('');
 
   const corMap = COR_MAP;
+  const precoAtual = produto?.emPromocao
+    ? (produto.precoPromocional ?? produto.preco)
+    : produto.preco;
 
   const getCorStyle = (cor: Cor) => {
     if (cor.cores?.length) {
@@ -82,7 +85,7 @@ export default function ProductData({ produto, setMainImage }: Props) {
       payload: {
         id: produto.id,
         nome: produto.nome,
-        preco: produto.preco,
+        preco: precoAtual,
         quantidade: 1,
         cor: selectedCor,
         tamanho: selectedTamanho,
@@ -125,8 +128,22 @@ export default function ProductData({ produto, setMainImage }: Props) {
 
       {/* PREÇO */}
       <div className="flex items-center justify-between">
-        <div className="text-xl font-bold mb-2 text-[#363636]">
-          R$ {produto.preco.toFixed(2)}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <div className="text-xl font-bold text-[#363636]">
+              R$ {precoAtual.toFixed(2)}
+            </div>
+            {produto?.emPromocao && produto?.precoPromocional != null && produto?.precoPromocional < produto?.preco && (
+              <span className="text-sm text-[#A67C6D] line-through">
+                R$ {produto.preco.toFixed(2)}
+              </span>
+            )}
+          </div>
+          {produto?.emPromocao && (
+            <span className="inline-flex w-fit rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-primary">
+              Promoção
+            </span>
+          )}
         </div>
       </div>
 

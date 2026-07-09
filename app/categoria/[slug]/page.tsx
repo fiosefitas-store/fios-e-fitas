@@ -64,33 +64,39 @@ export default function CategoriaPage() {
       .trim();
   };
 
+  const produtoPertenceCategoria = (produto: Produto) => {
+    const categoriasProduto = [produto.categoria, ...(produto.categorias ?? [])].filter(Boolean);
+
+    return categoriasProduto.some((categoria) => {
+      const catBanco = normalizar(categoria);
+      return produto.ativo && (catBanco === normalizar(categoriaLabel) || catBanco === normalizar(slug));
+    });
+  };
+
+  const subcategoriasProduto = (produto: Produto) => {
+    return [produto.subcategoria, ...(produto.subcategorias ?? [])].filter(
+      (sub): sub is string => Boolean(sub && sub.trim())
+    );
+  };
 
   // 1. Determina as subcategorias
   const subcategories = useMemo(() => {
     const subsEstaticas = category?.subcategories || [];
 
     const subsDoBanco = produtosBase
-      .filter((p) => {
-        const catBanco = normalizar(p.categoria);
-        // Compara com o Label ("Kits Presente") ou com o Slug ("kits-presente")
-        return p.ativo && (catBanco === normalizar(categoriaLabel) || catBanco === normalizar(slug));
-      })
-      .map((p) => p.subcategoria as string);
+      .filter(produtoPertenceCategoria)
+      .flatMap(subcategoriasProduto);
 
     return Array.from(new Set([...subsEstaticas, ...subsDoBanco]));
   }, [produtosBase, category, categoriaLabel, slug]);
 
   // 2. Filtra e ordena os produtos
   const produtosFiltrados = useMemo(() => {
-    let filtered = produtosBase.filter((produto) => {
-      const catBanco = normalizar(produto.categoria);
-      // Aceita se for igual ao formato com espaço ("Kits Presente") ou com hífen ("kits-presente")
-      return produto.ativo && (catBanco === normalizar(categoriaLabel) || catBanco === normalizar(slug));
-    });
+    let filtered = produtosBase.filter(produtoPertenceCategoria);
 
     if (selectedSubs.length > 0) {
       filtered = filtered.filter((produto) =>
-        produto.subcategoria && selectedSubs.includes(produto.subcategoria)
+        subcategoriasProduto(produto).some((sub) => selectedSubs.includes(sub))
       );
     }
 
@@ -103,6 +109,8 @@ export default function CategoriaPage() {
 
     return filtered;
   }, [produtosBase, categoriaLabel, slug, selectedSubs, sortBy]);
+
+  console.log('Subcategorias exibidas:', subcategories);
 
   return (
     <div className="min-h-screen bg-[#f6e6d5] pt-15">
