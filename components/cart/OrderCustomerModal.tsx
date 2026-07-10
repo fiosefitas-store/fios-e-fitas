@@ -125,6 +125,7 @@ export default function OrderCustomerModal({
             color: "#777",
             cursor: "pointer",
             width: "100%",
+            textDecoration: "underline",
           }}
         >
           Continuar sem informar
