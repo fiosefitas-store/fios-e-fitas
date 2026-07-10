@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { gerarMensagemWhatsApp } from '@/utils/whatsapp';
@@ -10,6 +10,7 @@ export default function CartSidebar() {
   const { items, total, observacoes, isOpen } = state;
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const overlay = overlayRef.current;
@@ -42,11 +43,43 @@ export default function CartSidebar() {
     if (quantidade < 1) return;
     dispatch({ type: 'UPDATE_QUANTIDADE', payload: { cartItemId, quantidade } });
   };
-  const handleWhatsApp = () => {
-    const url = gerarMensagemWhatsApp(items, total, observacoes);
-    window.open(url, '_blank');
+  const handleWhatsApp = async () => {
+    if (isSubmitting || items.length === 0) return;
+
+    setIsSubmitting(true);
+
+    // abre uma aba em branco imediatamente
+    const whatsappWindow = window.open("", "_blank");
+
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items,
+          total,
+          observacoes,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (whatsappWindow) {
+        whatsappWindow.location.href = data.whatsappUrl;
+      } else {
+        window.location.href = data.whatsappUrl;
+      }
+    } catch (error) {
+      whatsappWindow?.close();
+      console.error(error);
+      alert("Não foi possível finalizar o pedido.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
+    
 
   return (
     <>
@@ -203,6 +236,7 @@ export default function CartSidebar() {
             </div>
             <button
               onClick={handleWhatsApp}
+              disabled={isSubmitting}
               style={{
                 width: '100%',
                 padding: '16px',
@@ -211,15 +245,20 @@ export default function CartSidebar() {
                 color: 'white',
                 fontSize: '1rem',
                 border: 'none',
-                cursor: 'pointer',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 background: '#25D366',
                 boxShadow: 'var(--shadow-whatsapp)',
                 transition: 'opacity 0.2s',
+                opacity: isSubmitting ? 0.8 : 1,
               }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={e => {
+                if (!isSubmitting) e.currentTarget.style.opacity = '0.9';
+              }}
+              onMouseLeave={e => {
+                if (!isSubmitting) e.currentTarget.style.opacity = '1';
+              }}
             >
-              Enviar Pedido pelo WhatsApp
+              {isSubmitting ? 'Processando...' : 'Enviar Pedido pelo WhatsApp'}
             </button>
             <button
               onClick={() => dispatch({ type: 'CLEAR_CART' })}

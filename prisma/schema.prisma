@@ -69,3 +69,15 @@ model Cart {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Order {
+  id          String   @id @default(uuid())
+  orderNumber String   @unique
+  orderId     String   @unique
+  items       Json
+  total       Float
+  observacoes String?
+  status      String   @default("PENDENTE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

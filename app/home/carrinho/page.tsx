@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { gerarMensagemWhatsApp } from '@/utils/whatsapp';
@@ -8,10 +9,37 @@ import { gerarMensagemWhatsApp } from '@/utils/whatsapp';
 export default function CarrinhoPage() {
   const { state, dispatch } = useCart();
   const { items, total, observacoes } = state;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleWhatsApp = () => {
-    const url = gerarMensagemWhatsApp(items, total, observacoes);
-    window.open(url, '_blank');
+  const handleWhatsApp = async () => {
+    if (isSubmitting || items.length === 0) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, total, observacoes }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Não foi possível criar o pedido.');
+      }
+
+      const data = await response.json();
+      dispatch({ type: 'CLEAR_CART' });
+      const url = gerarMensagemWhatsApp(items, total, observacoes, {
+        orderNumber: data.order?.orderNumber,
+        orderId: data.order?.orderId,
+      });
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error(error);
+      alert('Não foi possível finalizar o pedido no momento. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -165,10 +193,11 @@ export default function CarrinhoPage() {
                 </div>
                 <button
                   onClick={handleWhatsApp}
-                  className="w-full py-4 rounded-full font-bold text-white text-base flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98]"
+                  disabled={isSubmitting}
+                  className="w-full py-4 rounded-full font-bold text-white text-base flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-80"
                   style={{ background: '#25D366', boxShadow: 'var(--shadow-whatsapp)' }}
                 >
-                  Finalizar pelo WhatsApp
+                  {isSubmitting ? 'Processando...' : 'Finalizar pelo WhatsApp'}
                 </button>
                 <p className="text-xs text-[#A67C6D] text-center mt-4">
                   Ao finalizar, voce sera redirecionado para o WhatsApp para confirmar seu pedido.
