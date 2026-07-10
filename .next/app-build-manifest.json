@@ -21,20 +21,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/admin/sazonal/route.js"
     ],
-    "/produto/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/produto/[id]/page.js"
-    ],
     "/api/orders/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/orders/route.js"
     ],
-    "/categoria/[slug]/page": [
+    "/produto/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/categoria/[slug]/page.js"
+      "static/chunks/app/produto/[id]/page.js"
     ]
   }
 }

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { gerarMensagemWhatsApp } from '@/utils/whatsapp';
+import OrderCustomerModal from "./OrderCustomerModal";
 
 export default function CartSidebar() {
   const { state, dispatch } = useCart();
@@ -11,6 +11,8 @@ export default function CartSidebar() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  
 
   useEffect(() => {
     const overlay = overlayRef.current;
@@ -43,7 +45,17 @@ export default function CartSidebar() {
     if (quantidade < 1) return;
     dispatch({ type: 'UPDATE_QUANTIDADE', payload: { cartItemId, quantidade } });
   };
-  const handleWhatsApp = async () => {
+
+  const handleStartOrder = () => {
+    if (isSubmitting || items.length === 0) return;
+
+    setIsCustomerModalOpen(true);
+  };
+
+  const handleWhatsApp = async (customer?: {
+    nome?: string;
+    email?: string;
+  }) => {
     if (isSubmitting || items.length === 0) return;
 
     setIsSubmitting(true);
@@ -61,6 +73,7 @@ export default function CartSidebar() {
           items,
           total,
           observacoes,
+          cliente: customer,
         }),
       });
 
@@ -83,6 +96,14 @@ export default function CartSidebar() {
 
   return (
     <>
+      <OrderCustomerModal
+        open={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        onConfirm={(customer) => {
+          setIsCustomerModalOpen(false);
+          handleWhatsApp(customer);
+        }}
+      />
       {/* Overlay */}
       <div
         ref={overlayRef}
@@ -235,7 +256,7 @@ export default function CartSidebar() {
               </span>
             </div>
             <button
-              onClick={handleWhatsApp}
+              onClick={handleStartOrder}
               disabled={isSubmitting}
               style={{
                 width: '100%',
@@ -258,7 +279,7 @@ export default function CartSidebar() {
                 if (!isSubmitting) e.currentTarget.style.opacity = '1';
               }}
             >
-              {isSubmitting ? 'Processando...' : 'Enviar Pedido pelo WhatsApp'}
+              {isSubmitting ? 'Processando...' : 'Finalizar o meu pedido!'}
             </button>
             <button
               onClick={() => dispatch({ type: 'CLEAR_CART' })}

@@ -33,8 +33,6 @@ export default function CategoriaPage() {
         const data = await productsService.getAll();
         setProdutosBase(data);
 
-        console.log("Categorias vindas do banco:", data.map(p => p.categoria));
-        console.log("Categoria esperada nesta página:", categoriaLabel);
       } catch (error) {
         console.error('Erro ao buscar produtos:', error);
       } finally {
@@ -110,7 +108,6 @@ export default function CategoriaPage() {
     return filtered;
   }, [produtosBase, categoriaLabel, slug, selectedSubs, sortBy]);
 
-  console.log('Subcategorias exibidas:', subcategories);
 
   return (
     <div className="min-h-screen bg-[#f6e6d5] pt-15">

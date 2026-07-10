@@ -2,13 +2,6 @@ import { NextResponse } from 'next/server';
 import {prisma} from '@/lib/prisma';
 export const runtime = 'nodejs';
 
-// Diagnostic: log presence of important env vars (no secrets)
-console.log('ENV CHECK:', {
-  hasDatabaseUrl: !!process.env.DATABASE_URL,
-  hasSupabaseAnon: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  hasSupabaseService: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-});
-
 async function findAdminInSupabase(supabaseClient: any, username: string) {
   const tableCandidates = ['Admin', 'admin', 'admins'];
 

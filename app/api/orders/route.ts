@@ -35,7 +35,11 @@ async function sendOrderEmail(
   orderId: string,
   items: any,
   total: number,
-  observacoes?: string | null
+  observacoes?: string | null,
+  cliente?: {
+    nome?: string;
+    email?: string;
+  }
 ) {
   const to = process.env.ORDER_EMAIL_TO || process.env.NEXT_PUBLIC_STORE_EMAIL;
   const from = process.env.ORDER_EMAIL_FROM || 'pedidos@fiosefitas.com.br';
@@ -68,6 +72,18 @@ async function sendOrderEmail(
 
         <hr/>
 
+        <h3>Cliente:</h3>
+
+        <p>
+          <strong>Nome:</strong>
+          ${cliente?.nome || 'Não informado'}
+        </p>
+
+        <p>
+          <strong>E-mail:</strong>
+          ${cliente?.email || 'Não informado'}
+        </p>
+
         <p>
           <strong>Número do pedido:</strong>
           ${orderNumber}
@@ -93,6 +109,41 @@ async function sendOrderEmail(
       `
     });
 
+    if (cliente?.email) {
+      const customerMail = await transporter.sendMail({
+        from: `"Fios e Fitas" <${smtpUser}>`,
+        to: cliente.email,
+        replyTo: smtpUser,
+        subject: `Pedido recebido - ${orderNumber}`,
+        html: `
+          <h2>🛒 Recebemos seu pedido!</h2>
+
+          <p>
+            Olá ${cliente.nome || ''}, seu pedido foi recebido com sucesso.
+          </p>
+
+          <hr/>
+
+          <h3>Itens:</h3>
+
+          ${formatOrderItems(items)}
+
+          <hr/>
+
+          <h3>Total: R$ ${total.toFixed(2)}</h3>
+
+          <p>
+            <strong>Observações:</strong><br/>
+            ${observacoes || 'Nenhuma'}
+          </p>
+
+          <p>
+            Obrigado pela preferência ❤️
+          </p>
+        `
+      });
+    }
+
     return { ok: true, skipped: false };
   } catch (error) {
     console.error('Failed to send order email', error);
@@ -103,7 +154,7 @@ async function sendOrderEmail(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, total, observacoes } = body ?? {};
+    const { items, total, observacoes, cliente } = body ?? {};
 
     if (!Array.isArray(items) || typeof total !== 'number') {
       return NextResponse.json({ error: 'Payload inválido.' }, { status: 400 });
@@ -119,6 +170,9 @@ export async function POST(request: Request) {
         items,
         total,
         observacoes: observacoes ?? null,
+
+        clienteNome: cliente?.nome ?? null,
+        clienteEmail: cliente?.email ?? null,
       },
     });
     const mensagem = encodeURIComponent(
@@ -131,12 +185,13 @@ export async function POST(request: Request) {
 
       const whatsappUrl = `https://wa.me/5583998660454?text=${mensagem}`;
 
-    await sendOrderEmail(
+    sendOrderEmail(
       orderNumber,
       order.orderId,
       order.items,
       order.total,
-      order.observacoes
+      order.observacoes,
+      cliente
     ).catch(console.error);
 
     return NextResponse.json({ ok: true, order, whatsappUrl });
