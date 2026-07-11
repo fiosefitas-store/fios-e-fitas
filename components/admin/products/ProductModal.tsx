@@ -41,6 +41,8 @@ export default function ProductModal({
 
   const TAMANHOS_PADRAO = ["PP", "P", "M", "G", "Padrão"];
 
+  const hasColors = editProduto.cores.length > 0;
+
   const categoriasSelecionadas = editProduto.categorias?.length
     ? editProduto.categorias
     : editProduto.categoria
@@ -398,6 +400,12 @@ export default function ProductModal({
             })}
           </div>
 
+          {!editProduto.cores.length && requiredTouched.cor && (
+            <p className="mt-2 text-xs text-red-500">
+              Selecione pelo menos uma cor.
+            </p>
+          )}
+
           <div className="pt-4 border-t">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-gray-700">
@@ -747,6 +755,11 @@ export default function ProductModal({
 
           <button
             onClick={async () => {
+              {!hasColors && requiredTouched.cor && (
+                <p className="mt-2 text-xs text-red-500">
+                  Selecione pelo menos uma cor.
+                </p>
+              )}
               setIsSaving(true);
 
               const missing = requiredFields.filter((field) => !field.value);
