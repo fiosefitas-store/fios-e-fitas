@@ -31,7 +31,7 @@ export default function ProductTab({ produtos, saveProdutos }: Props) {
       descricao: "",
       preco: 0,
       categoria: CATEGORIES[0].slug,
-      imagem: "/images/produtos/laco-cetim-rosa.png",
+      imagem: "",
       cores: [],
       tamanhos: [],
       materiais: [],

@@ -59,18 +59,29 @@ export default function ColorImageModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Cria a URL temporária para o navegador renderizar
     const localPreview = URL.createObjectURL(file);
+
+    const novasCores = editProduto.cores.some((c) => c.nome === editingColorImage)
+      ? editProduto.cores.map((c) =>
+          c.nome === editingColorImage
+            ? { ...c, imagem: localPreview, file }
+            : c
+        )
+      : [
+          ...editProduto.cores,
+          {
+            nome: editingColorImage,
+            imagem: localPreview,
+            file,
+          },
+        ];
 
     setEditProduto({
       ...editProduto,
-      cores: editProduto.cores.some((c) => c.nome === editingColorImage)
-        ? editProduto.cores.map((c) =>
-            c.nome === editingColorImage 
-              ? { ...c, imagem: localPreview, file: file } // Guarda a preview e o arquivo físico
-              : c
-          )
-        : [...editProduto.cores, { nome: editingColorImage, imagem: localPreview, file: file }],
+      cores: novasCores,
+      imagem: editProduto.imagem?.startsWith("/images/")
+        ? localPreview
+        : editProduto.imagem || localPreview,
     });
   };
 
@@ -82,27 +93,37 @@ export default function ColorImageModal({
     if (!cor?.imagem) return;
 
     try {
-      if (cor.imagem.startsWith("http") && cor.imagem.includes("supabase.co")) {
-        // Decodifica a URL para transformar %20 de volta em espaços ou caracteres normais
+      if (
+        cor.imagem.startsWith("http") &&
+        cor.imagem.includes("supabase.co")
+      ) {
         const decodedUrl = decodeURIComponent(cor.imagem);
         await deleteImageFromStorage(decodedUrl);
       } else if (cor.imagem.startsWith("blob:")) {
         URL.revokeObjectURL(cor.imagem);
       }
 
-      // Limpa o estado local
+      const novasCores = editProduto.cores.map((c) =>
+        c.nome === editingColorImage
+          ? { ...c, imagem: "", file: undefined }
+          : c
+      );
+
+      const proximaImagem = novasCores.find((c) => c.imagem)?.imagem || "";
+
       setEditProduto({
         ...editProduto,
-        cores: editProduto.cores.map((c) =>
-          c.nome === editingColorImage ? { ...c, imagem: "", file: undefined } : c
-        ),
+        cores: novasCores,
+        imagem:
+          editProduto.imagem === cor.imagem
+            ? proximaImagem
+            : editProduto.imagem,
       });
-
     } catch (error) {
       console.error("Erro ao remover a imagem:", error);
     }
   };
-
+  
   const handleRemoveColorEntirely = async () => {
     try {
       // 1. Se tiver imagem salva no Supabase, deleta ela primeiro

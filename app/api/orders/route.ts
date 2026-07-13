@@ -49,7 +49,17 @@ async function sendOrderEmail(
   const smtpPass = process.env.SMTP_PASS;
 
   if (!to || !smtpHost || !smtpUser || !smtpPass) {
-    return { ok: true, skipped: true };
+    console.error("SMTP incompleto", {
+      to,
+      smtpHost,
+      smtpUser,
+      hasPass: !!smtpPass,
+    });
+
+    return { 
+      ok: false, 
+      skipped: true 
+    };
   }
 
   try {

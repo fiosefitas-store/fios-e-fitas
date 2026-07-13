@@ -57,16 +57,23 @@ export default function ProductModal({
     categoriasSelecionadas.includes(categoria.slug)
   ).flatMap((categoria) => categoria.subcategories);
 
+  const hasAtLeastOneImage = editProduto.cores.some(
+    (cor) => cor.imagem && cor.imagem.trim() !== ""
+  );
+  
+
   const requiredFields = [
     { key: "nome", label: "Nome do produto", value: editProduto.nome?.trim() },
     { key: "descricao", label: "Descrição", value: editProduto.descricao?.trim() },
     { key: "preco", label: "Preço", value: editProduto.preco > 0 ? String(editProduto.preco) : "" },
     { key: "categoria", label: "Categoria", value: categoriasSelecionadas.length ? categoriasSelecionadas.join(",") : "" },
     { key: "cor", label: "Cor", value: editProduto.cores?.length ? "ok" : "" },
-    { key: "imagem", label: "Imagem principal", value: editProduto.imagem ? "ok" : "" },
+    { key: "imagem", label: "Pelo menos uma imagem", value: hasAtLeastOneImage ? "ok" : "" },
     { key: "tamanho", label: "Tamanho", value: editProduto.tamanhos?.length ? "ok" : "" },
     { key: "vendas", label: "Quantidade de vendas", value: editProduto.vendas >= 0 ? String(editProduto.vendas) : "" },
   ];
+
+  const canSave = requiredFields.every((field) => field.value);
 
   const colorNames = Array.from(
     new Set([
@@ -397,6 +404,11 @@ export default function ProductModal({
               );
             })}
           </div>
+          {!editProduto.cores.length && requiredTouched.cor && (
+            <p className="mt-2 text-xs text-red-500">
+              Selecione pelo menos uma cor e adicione uma imagem.
+            </p>
+          )}
 
           <div className="pt-4 border-t">
             <div className="flex items-center justify-between">
@@ -751,7 +763,11 @@ export default function ProductModal({
 
               const missing = requiredFields.filter((field) => !field.value);
               if (missing.length) {
-                setRequiredTouched(Object.fromEntries(requiredFields.map((field) => [field.key, true])));
+                setRequiredTouched(
+                  Object.fromEntries(
+                    requiredFields.map((field) => [field.key, true])
+                  )
+                );
                 setIsSaving(false);
                 return;
               }
@@ -770,9 +786,12 @@ export default function ProductModal({
                 setIsSaving(false);
               }
             }}
-            disabled={isSaving}
-            className="flex-1 py-3 rounded-full text-white disabled:opacity-50"
-            style={{ background: "#F4845F" }}
+            disabled={isSaving || !canSave}
+            className={`flex-1 py-3 rounded-full text-white transition-colors ${
+              isSaving || !canSave
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-primary hover:opacity-90"
+            }`}
           >
             {isSaving ? "Salvando..." : "Salvar"}
           </button>
