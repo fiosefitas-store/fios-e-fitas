@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from "next/server";
 import { prisma } from '@/lib/prisma';
 import nodemailer from "nodemailer";
 
@@ -195,14 +195,20 @@ export async function POST(request: Request) {
 
       const whatsappUrl = `https://wa.me/5583998660454?text=${mensagem}`;
 
-    sendOrderEmail(
-      orderNumber,
-      order.orderId,
-      order.items,
-      order.total,
-      order.observacoes,
-      cliente
-    ).catch(console.error);
+    after(async () => {
+      try {
+        await sendOrderEmail(
+          orderNumber,
+          order.orderId,
+          order.items,
+          order.total,
+          order.observacoes,
+          cliente
+        );
+      } catch (error) {
+        console.error("Erro ao enviar email:", error);
+      }
+    });
 
     return NextResponse.json({ ok: true, order, whatsappUrl });
   } catch (error) {
