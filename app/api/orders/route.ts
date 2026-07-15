@@ -42,7 +42,7 @@ async function sendOrderEmail(
   }
 ) {
   const to = process.env.ORDER_EMAIL_TO || process.env.NEXT_PUBLIC_STORE_EMAIL;
-  const from = process.env.ORDER_EMAIL_FROM || 'pedidos@fiosefitas.com.br';
+  const from = process.env.ORDER_EMAIL_FROM || 'vendas@fiosefitas.com.br';
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || 587);
   const smtpUser = process.env.SMTP_USER;
@@ -74,7 +74,8 @@ async function sendOrderEmail(
     });
 
     await transporter.sendMail({
-      from,
+      from: `"Fios e Fitas" <${smtpUser}>`,
+      replyTo: from ,
       to,
       subject: `Novo pedido ${orderNumber}`,
       html: `
@@ -121,9 +122,9 @@ async function sendOrderEmail(
 
     if (cliente?.email) {
       const customerMail = await transporter.sendMail({
-        from: `"Fios e Fitas" <${smtpUser}>`,
+        from: `"Fios e Fitas" <vendas@fiosefitas.com.br>`,
         to: cliente.email,
-        replyTo: smtpUser,
+        replyTo: from ,
         subject: `Pedido recebido - ${orderNumber}`,
         html: `
           <h2>🛒 Recebemos seu pedido!</h2>
