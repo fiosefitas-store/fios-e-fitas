@@ -10,6 +10,9 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="order-1">
+        <h1 className="sr-only">
+          Fios e Fitas — Materiais para artesanato, crochê e presentes
+        </h1>
         <HeroBanner />
       </div>
 

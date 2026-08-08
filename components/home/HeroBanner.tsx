@@ -3,15 +3,21 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { PencilRuler , Gem, ShieldCheck } from "lucide-react";
+import Link from 'next/link';
+
+const bannerLinks = [
+  '/produto/produto-1786121230522',
+  '/colecao/cmqvgtg9z000j4sj92kcz97ss',
+];
 
 const banners = [
-  '/banner/bcopa.png',
-  '/banner/bkit.png',
+  '/banner/banner1.jpeg',
+  '/banner/banner2.png',
 ];
 
 const bannersMobile = [
-  '/banner/banner3.png',
-  '/banner/bannercopa2.png',
+  '/banner/banner1m.jpeg',
+  '/banner/banner2m.png',
 ];
 
 export default function HeroBanner() {
@@ -32,32 +38,50 @@ export default function HeroBanner() {
         <div className="relative h-100 md:h-170">
         {/* Desktop */}
         {banners.map((banner, index) => (
-          <img
+          <Link
             key={`desktop-${index}`}
-            src={banner}
-            alt={`Banner ${index + 1}`}
+            href={bannerLinks[index]}
             className={cn(
-              "hidden md:block absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+              "hidden md:block absolute inset-0 transition-opacity duration-700",
               current === index
-                ? "opacity-100"
+                ? "opacity-100 z-10"
                 : "opacity-0 pointer-events-none"
             )}
-          />
+          >
+            <img
+              src={banner}
+              alt={
+                index === 0
+                  ? "Produto em destaque"
+                  : "Coleção em destaque"
+              }
+              className="w-full h-full object-contain"
+            />
+          </Link>
         ))}
 
         {/* Mobile */}
         {bannersMobile.map((banner, index) => (
-          <img
+          <Link
             key={`mobile-${index}`}
-            src={banner}
-            alt={`Banner Mobile ${index + 1}`}
+            href={bannerLinks[index]}
             className={cn(
-              "block md:hidden absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+              "block md:hidden absolute inset-0 transition-opacity duration-700",
               current === index
-                ? "opacity-100"
+                ? "opacity-100 z-10"
                 : "opacity-0 pointer-events-none"
             )}
-          />
+          >
+            <img
+              src={banner}
+              alt={
+                index === 0
+                  ? "Produto em destaque"
+                  : "Coleção em destaque"
+              }
+              className="w-full h-full object-contain"
+            />
+          </Link>
         ))}
 
         {/* Bolinhas */}

@@ -1,5 +1,9 @@
 {
+  "/api/admin/products/route": "app/api/admin/products/route.js",
+  "/api/admin/sazonal/route": "app/api/admin/sazonal/route.js",
   "/page": "app/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/dashboard/page": "app/admin/dashboard/page.js"
+  "/categoria/[slug]/page": "app/categoria/[slug]/page.js",
+  "/todos/page": "app/todos/page.js",
+  "/produto/[id]/page": "app/produto/[id]/page.js",
+  "/colecao/[slug]/page": "app/colecao/[slug]/page.js"
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from "next/image";
 import { ShoppingBag, Menu, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { cn } from '@/lib/utils';
@@ -55,8 +56,18 @@ export default function Navbar() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="font-logo text-primary text-[1.75rem] leading-none absolute left-1/2 md:static md:left-auto transform -translate-x-1/2 md:translate-x-0">
-            Fios e Fitas
+          <Link
+            href="/"
+            className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0"
+          >
+            <Image
+              src="/logo/logo.svg"
+              alt="Fios e Fitas"
+              width={180}
+              height={50}
+              priority
+              className="h-auto w-[150px] md:w-[180px]"
+            />
           </Link>
 
           {/* CATEGORIAS */}

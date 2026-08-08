@@ -1,14 +1,25 @@
 'use client';
 
 import Link from 'next/link';
+import Image from "next/image";
 
 export default function Footer() {
   return (
     <footer className="bg-linear-to-b from-[#3D261D] to-[#5C3D31] text-white py-12 px-4 md:px-8 mt-auto">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1 md:col-span-2">
-          <Link href="/" className="font-logo text-[#FAC9A8] text-3xl mb-4 block">
-            Fios e Fitas
+          <Link
+            href="/"
+            className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0"
+          >
+            <Image
+              src="/logo/logo2.svg"
+              alt="Fios e Fitas"
+              width={180}
+              height={50}
+              priority
+              className="h-auto w-[150px] md:w-[180px]"
+            />
           </Link>
           <p className="text-[#A67C6D] max-w-sm mb-6">
             Laços, bolsas e crochês feitos à mão com amor. Peças artesanais 100% personalizadas para momentos especiais.

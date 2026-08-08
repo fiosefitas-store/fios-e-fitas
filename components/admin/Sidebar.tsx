@@ -9,7 +9,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-
+import Image from "next/image";
 import { Tab } from "./Dashboard";
 
 interface Props {
@@ -91,12 +91,12 @@ export default function Sidebar({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-8 border-b border-white/10">
           <div>
-            <h1
-              className="text-2xl font-bold text-[#FAC9A8]"
-              style={{ fontFamily: "var(--font-logo)" }}
-            >
-              Fios e Fitas
-            </h1>
+            <Image
+              src="/logo.svg"
+              alt="Logo"
+              width={40}
+              height={40}
+            />
 
             <p className="text-xs text-[#A67C6D]">
               Painel Admin

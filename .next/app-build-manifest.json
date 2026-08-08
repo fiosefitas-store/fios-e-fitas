@@ -21,30 +21,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/admin/sazonal/route.js"
     ],
-    "/admin/page": [
+    "/categoria/[slug]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/page.js"
+      "static/chunks/app/categoria/[slug]/page.js"
     ],
-    "/api/admin/login/route": [
+    "/todos/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/admin/login/route.js"
+      "static/chunks/app/todos/page.js"
     ],
-    "/admin/dashboard/page": [
+    "/produto/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/dashboard/page.js"
+      "static/chunks/app/produto/[id]/page.js"
     ],
-    "/api/admin/products/[id]/route": [
+    "/colecao/[slug]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/admin/products/[id]/route.js"
-    ],
-    "/api/orders/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/orders/route.js"
+      "static/chunks/app/colecao/[slug]/page.js"
     ]
   }
 }
