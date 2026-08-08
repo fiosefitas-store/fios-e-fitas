@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from "next/server";
 import { prisma } from '@/lib/prisma';
 import nodemailer from "nodemailer";
 
@@ -42,14 +42,24 @@ async function sendOrderEmail(
   }
 ) {
   const to = process.env.ORDER_EMAIL_TO || process.env.NEXT_PUBLIC_STORE_EMAIL;
-  const from = process.env.ORDER_EMAIL_FROM || 'pedidos@fiosefitas.com.br';
+  const from = process.env.ORDER_EMAIL_FROM || '';
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || 587);
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
 
   if (!to || !smtpHost || !smtpUser || !smtpPass) {
-    return { ok: true, skipped: true };
+    console.error("SMTP incompleto", {
+      to,
+      smtpHost,
+      smtpUser,
+      hasPass: !!smtpPass,
+    });
+
+    return { 
+      ok: false, 
+      skipped: true 
+    };
   }
 
   try {
@@ -64,7 +74,8 @@ async function sendOrderEmail(
     });
 
     await transporter.sendMail({
-      from,
+      from: `"Fios e Fitas" <${from}>`,
+      replyTo: from ,
       to,
       subject: `Novo pedido ${orderNumber}`,
       html: `
@@ -113,7 +124,7 @@ async function sendOrderEmail(
       const customerMail = await transporter.sendMail({
         from: `"Fios e Fitas" <${smtpUser}>`,
         to: cliente.email,
-        replyTo: smtpUser,
+        replyTo: from ,
         subject: `Pedido recebido - ${orderNumber}`,
         html: `
           <h2>🛒 Recebemos seu pedido!</h2>
@@ -185,14 +196,20 @@ export async function POST(request: Request) {
 
       const whatsappUrl = `https://wa.me/5583998660454?text=${mensagem}`;
 
-    sendOrderEmail(
-      orderNumber,
-      order.orderId,
-      order.items,
-      order.total,
-      order.observacoes,
-      cliente
-    ).catch(console.error);
+    after(async () => {
+      try {
+        await sendOrderEmail(
+          orderNumber,
+          order.orderId,
+          order.items,
+          order.total,
+          order.observacoes,
+          cliente
+        );
+      } catch (error) {
+        console.error("Erro ao enviar email:", error);
+      }
+    });
 
     return NextResponse.json({ ok: true, order, whatsappUrl });
   } catch (error) {
