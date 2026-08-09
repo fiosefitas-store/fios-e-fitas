@@ -1,17 +1,36 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
 
 const prisma = new PrismaClient();
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // IMPORTANTE
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function extractPath(url: string) {
-  const parts = url.split("/storage/v1/object/public/");
-  return parts[1]?.replace("produtos/", "");
+
+function extractPath(value: string): string | null {
+  if (!value || typeof value !== "string") {
+    return null;
+  }
+
+  // Se já for um path do Storage
+  if (!value.includes("/storage/v1/object/public/")) {
+    return value.replace(/^produtos\//, "");
+  }
+
+  const marker = "/storage/v1/object/public/";
+
+  const index = value.indexOf(marker);
+
+  if (index === -1) {
+    return null;
+  }
+
+  const pathCompleto = value.substring(index + marker.length);
+
+  return pathCompleto.replace(/^produtos\//, "");
 }
 
 export async function GET(
@@ -27,15 +46,17 @@ export async function GET(
 
     if (!produto) {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
 
     return NextResponse.json(produto);
   } catch (error) {
+    console.error("Erro ao buscar produto:", error);
+
     return NextResponse.json(
-      { error: 'Erro ao buscar produto' },
+      { error: "Erro ao buscar produto" },
       { status: 500 }
     );
   }
@@ -56,15 +77,17 @@ export async function PUT(
 
     return NextResponse.json(produto);
   } catch (error: any) {
-    if (error.code === 'P2025') {
+    console.error("Erro ao atualizar produto:", error);
+
+    if (error.code === "P2025") {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Erro ao atualizar produto' },
+      { error: "Erro ao atualizar produto" },
       { status: 500 }
     );
   }
@@ -77,52 +100,67 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // 1. buscar produto antes de deletar
+    // 1. Buscar produto
     const produto = await prisma.product.findUnique({
       where: { id },
     });
 
     if (!produto) {
+      console.log("Produto não encontrado");
+
       return NextResponse.json(
         { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
 
-    // 2. montar lista de imagens
+    // 2. Montar lista das imagens
     const imagens: string[] = [];
 
     if (produto.imagem) {
       imagens.push(produto.imagem);
     }
 
-    // se você tiver cores como JSON/array no Prisma:
-    if ((produto as any).cores?.length) {
-      imagens.push(
-        ...(produto as any).cores.map((c: any) => c.imagem)
-      );
+    // Caso cores seja um campo JSON
+    const cores = (produto as any).cores;
+
+    if (Array.isArray(cores)) {
+      for (const cor of cores) {
+        if (cor?.imagem) {
+          imagens.push(cor.imagem);
+        }
+      }
     }
 
-    // 3. deletar do Supabase Storage
+    // 3. Converter URLs em paths do Storage
     const paths = imagens
       .map(extractPath)
-      .filter(Boolean);
+      .filter((path): path is string => Boolean(path));
 
-    if (paths.length) {
-      await supabase.storage
+    // 4. Deletar imagens
+    if (paths.length > 0) {
+      const { error: storageError } = await supabase.storage
         .from("produtos")
         .remove(paths);
+
+      if (storageError) {
+
+        // Não vamos impedir a exclusão do produto
+        // por causa de uma imagem que não conseguiu ser removida.
+      } else {}
     }
 
-    // 4. deletar produto no banco
+    // 5. Deletar produto do banco
+
     await prisma.product.delete({
       where: { id },
     });
 
     return NextResponse.json({
-      message: "Produto e imagens removidos com sucesso",
+      message: "Produto removido com sucesso",
     });
   } catch (error: any) {
+
     if (error.code === "P2025") {
       return NextResponse.json(
         { error: "Produto não encontrado" },
@@ -131,7 +169,13 @@ export async function DELETE(
     }
 
     return NextResponse.json(
-      { error: "Erro ao remover produto" },
+      {
+        error: "Erro ao remover produto",
+        details:
+          process.env.NODE_ENV === "development"
+            ? error?.message
+            : undefined,
+      },
       { status: 500 }
     );
   }

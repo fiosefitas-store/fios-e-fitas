@@ -42,6 +42,19 @@ export const productsService = {
       method: "DELETE",
     });
 
-    if (!res.ok) throw new Error("Erro ao deletar produto");
+    if (!res.ok) {
+      const error = await res.json().catch(() => null);
+
+      console.error(
+        "Erro ao deletar produto na API:",
+        error
+      );
+
+      throw new Error(
+        error?.details ||
+        error?.error ||
+        "Erro ao deletar produto"
+      );
+    }
   },
 };

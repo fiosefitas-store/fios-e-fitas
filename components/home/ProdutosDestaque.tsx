@@ -65,7 +65,7 @@ export default function ProdutosDestaque() {
         {/* LADO ESQUERDO */}
         <div className="hidden lg:flex flex-col justify-center shrink-0 w-82.5">
           <img
-            src="/logo/destaques2.png"
+            src="/logo/destaques2.webp"
             alt="Nossos destaques"
             className="w-full"
           />
@@ -84,7 +84,7 @@ export default function ProdutosDestaque() {
 
               <Link
                 href="/todos"
-                className="mt-2 md:mt-4 underline text-right md:text-left text-[#fff0e8] font-semibold"
+                className="mt-2 md:mt-4 underline text-right md:text-left text-white font-semibold"
               >
                 Ver Todos
               </Link>

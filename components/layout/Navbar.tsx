@@ -48,11 +48,14 @@ export default function Navbar() {
         <div className="max-w-6xl w-full mx-auto flex items-center justify-between gap-4">
           
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
+            type="button"
+            aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={isMobileMenuOpen}
             className="md:hidden p-2 text-[#3D261D]"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
           </button>
 
           {/* Logo */}
@@ -92,13 +95,19 @@ export default function Navbar() {
             </div>
 
             {/* Sacola de Compras */}
-            <button 
+            <button
+              type="button"
+              aria-label={`Abrir sacola de compras${totalItems > 0 ? `, ${totalItems} ${totalItems === 1 ? "item" : "itens"}` : ""}`}
               className="p-2 hover:text-primary transition-colors relative"
               onClick={() => dispatch({ type: 'TOGGLE_CART' })}
             >
-              <ShoppingBag size={20} />
+              <ShoppingBag size={20} aria-hidden="true" />
+
               {totalItems > 0 && (
-                <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center">
+                <span
+                  aria-hidden="true"
+                  className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center"
+                >
                   {totalItems}
                 </span>
               )}

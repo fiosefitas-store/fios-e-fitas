@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("");
@@ -56,12 +57,15 @@ export default function AdminLogin() {
         style={{ boxShadow: "0 24px 60px rgba(61,38,29,0.12)" }}
       >
         <div className="text-center mb-8">
-          <h1
-            className="text-3xl font-bold text-primary mb-1"
-            style={{ fontFamily: "var(--font-logo)" }}
-          >
-            Fios e Fitas
-          </h1>
+          <div className="flex justify-center">
+            <Image
+              src="/logo/logo.svg"
+              alt="Logo"
+              width={150}
+              height={150}
+            />
+          </div>
+
           <p className="text-[#A67C6D] text-sm">Painel Administrativo</p>
         </div>
 

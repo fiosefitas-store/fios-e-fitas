@@ -65,7 +65,7 @@ export default function Search() {
   return (
     <div ref={searchRef} className="relative w-full max-w-xs md:max-w-sm">
       {/* Barra de Input */}
-      <div className="relative flex items-center bg-[#FDFAF8] border border-[#E4D0C5] rounded-full px-10 py-2 focus-within:border-primary transition-all">
+      <div className="relative flex items-center bg-white border border-[#E4D0C5] rounded-full px-10 py-2 focus-within:border-primary transition-all">
         <SearchIcon size={18} className="text-[#A67C6D] mr-2 shrink-0" />
         <input
           type="text"

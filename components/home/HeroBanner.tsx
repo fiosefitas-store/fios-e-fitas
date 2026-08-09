@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { PencilRuler , Gem, ShieldCheck } from "lucide-react";
 import Link from 'next/link';
+import Image from 'next/image';
 
 const bannerLinks = [
   '/produto/produto-1786121230522',
@@ -11,13 +12,13 @@ const bannerLinks = [
 ];
 
 const banners = [
-  '/banner/banner1.jpeg',
-  '/banner/banner2.png',
+  '/banner/banner1.webp',
+  '/banner/banner2.webp',
 ];
 
 const bannersMobile = [
-  '/banner/banner1m.jpeg',
-  '/banner/banner2m.png',
+  '/banner/banner1m.webp',
+  '/banner/banner2m.webp',
 ];
 
 export default function HeroBanner() {
@@ -48,14 +49,18 @@ export default function HeroBanner() {
                 : "opacity-0 pointer-events-none"
             )}
           >
-            <img
+            <Image
               src={banner}
               alt={
                 index === 0
                   ? "Produto em destaque"
                   : "Coleção em destaque"
               }
-              className="w-full h-full object-contain"
+              fill
+              priority={index === 0}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              sizes="100vw"
+              className="object-contain"
             />
           </Link>
         ))}
@@ -72,14 +77,18 @@ export default function HeroBanner() {
                 : "opacity-0 pointer-events-none"
             )}
           >
-            <img
+            <Image
               src={banner}
               alt={
                 index === 0
                   ? "Produto em destaque"
                   : "Coleção em destaque"
               }
-              className="w-full h-full object-contain"
+              fill
+              priority={index === 0}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              sizes="100vw"
+              className="object-contain"
             />
           </Link>
         ))}
@@ -89,6 +98,9 @@ export default function HeroBanner() {
           {banners.map((_, index) => (
             <button
               key={index}
+              type="button"
+              aria-label={`Ir para o slide ${index + 1}`}
+              aria-current={current === index ? "true" : undefined}
               onClick={() => setCurrent(index)}
               className={cn(
                 "h-2.5 rounded-full transition-all",

@@ -92,10 +92,10 @@ export default function Sidebar({
         <div className="flex items-center justify-between px-6 py-8 border-b border-white/10">
           <div>
             <Image
-              src="/logo.svg"
+              src="/logo/logo.svg"
               alt="Logo"
-              width={40}
-              height={40}
+              width={100}
+              height={100}
             />
 
             <p className="text-xs text-[#A67C6D]">

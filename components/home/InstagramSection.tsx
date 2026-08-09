@@ -3,11 +3,10 @@
 import { Instagram } from 'lucide-react';
 
 const images = [
-  '/images/ig/ig1.png',
-  '/images/ig/ig2.png',
-  '/images/ig/ig3.png',
-  '/images/ig/ig4.png',
-
+  '/images/ig/ig1.webp',
+  '/images/ig/ig2.webp',
+  '/images/ig/ig3.webp',
+  '/images/ig/ig4.webp',
 ];
 
 export default function InstagramSection() {
